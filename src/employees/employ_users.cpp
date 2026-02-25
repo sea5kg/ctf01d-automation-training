@@ -39,12 +39,24 @@ EmployUsers::EmployUsers()
 
 bool EmployUsers::init(const std::string &sName, bool bSilent) {
   auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
+  m_rating = nlohmann::json::array();
 
-  m_mapUserSecretToken = dbUsers->getAllUsers();
-  auto it = m_mapUserSecretToken.begin();
-  for (auto it = m_mapUserSecretToken.begin(); it != m_mapUserSecretToken.end(); ++it) {
-    m_mapSecretTokenUser[it->second] = it->first;
+  m_mapUsers = dbUsers->getAllUsers();
+  for (auto it = m_mapUsers.begin(); it != m_mapUsers.end(); ++it) {
+    UserInfo info = it->second;
+    m_mapSecretTokenUser[info.secret_token] = it->first;
+    nlohmann::json rating_row;
+    rating_row["name"] = info.name;
+    rating_row["score"] = info.score;
+    rating_row["attack"] = info.attack;
+    rating_row["shtraf"] = info.shtraf;
+    rating_row["tries"] = info.tries;
+    rating_row["updated"] = info.updated;
+    m_rating.push_back(rating_row);
   }
+
+  sortRatingTable();
+
   return true;
 }
 
@@ -52,21 +64,65 @@ bool EmployUsers::deinit(const std::string &sName, bool bSilent) {
   return true;
 }
 
-bool EmployUsers::createUser(const std::string &name, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error) {
+bool EmployUsers::createUser(const std::string &username, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error) {
   auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
 
-  if (m_mapUserSecretToken.count(name) > 0) {
-    // TODO already registered
-  }
-
-  if (!dbUsers->createUser(name, secret_token)) {
+  if (m_mapUsers.count(username) > 0) {
     error = std::move(std::make_shared<gtree::ErrorInfo>(
-      ERR_10019_COULD_NOT_CREATE_USER.replace("$email$", name)
+      ERR_10018_USER_ALREADY_EXISTS.replace("$username$", username)
     ));
     return false;
   }
-  m_mapUserSecretToken[name] = secret_token;
-  m_mapSecretTokenUser[secret_token] = name;
+
+  UserInfo info;
+  info.name = username;
+
+  if (!dbUsers->createUser(info.name, info)) {
+    error = std::move(std::make_shared<gtree::ErrorInfo>(
+      ERR_10019_COULD_NOT_CREATE_USER.replace("$username$", username)
+    ));
+    return false;
+  }
+  m_mapUsers[info.name] = info;
+  m_mapSecretTokenUser[info.secret_token] = info.name;
+
+  {
+    std::lock_guard<std::mutex> lock(m_mutexRating);
+    nlohmann::json rating_row;
+    rating_row["name"] = info.name;
+    rating_row["score"] = info.score;
+    rating_row["attack"] = info.attack;
+    rating_row["shtraf"] = info.shtraf;
+    rating_row["tries"] = info.tries;
+    rating_row["updated"] = info.updated;
+    m_rating.push_back(rating_row);
+  }
 
   return true;
+}
+
+const nlohmann::json &EmployUsers::rating() {
+  return m_rating;
+}
+
+void EmployUsers::sortRatingTable() {
+  std::lock_guard<std::mutex> lock(m_mutexRating);
+
+  int mutates = 1;
+  while (mutates > 0) {
+    mutates = 0;
+    for (int i = 0; i < m_rating.size() - 1; i++) {
+      int current_score = m_rating[i]["score"];
+      int current_updated = m_rating[i]["updated"];
+      int next_score = m_rating[i+1]["score"];
+      int next_updated = m_rating[i+1]["updated"];
+      if (
+        (current_score < next_score)
+        || (current_score == next_score && current_updated > next_updated)
+      ) {
+        std::swap(m_rating[i], m_rating[i+1]);
+        mutates++;
+      }
+    }
+  }
 }

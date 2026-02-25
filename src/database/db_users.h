@@ -24,7 +24,7 @@
 #pragma once
 
 #include "database_file.h"
-
+#include "db_structs.h"
 #include <map>
 
 class DbUsers : public DatabaseFile {
@@ -32,19 +32,16 @@ public:
   DbUsers();
   ~DbUsers();
 
-  std::map<std::string, std::string> getAllUsers();
+  std::map<std::string, UserInfo> getAllUsers();
   std::pair<std::string, std::string> findUserByNameAndPass(const std::string &name, const std::string &pass);
   std::string findUserBySecretToken(const std::string &secret_token);
-  bool createUser(const std::string &name, std::string &secret_token);
-
-  
+  bool createUser(const std::string &name, UserInfo &info);
 
 private:
   std::string unsafe_findUserBySecretToken(const std::string &secret_token);
 
   std::string findSoltByUuid(const std::string &uuid);
   std::string createRandomSolt();
-
 
   std::mutex m_mutex;
   std::string TAG;

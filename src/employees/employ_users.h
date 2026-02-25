@@ -28,20 +28,9 @@
 #include <memory>
 
 #include "web_errors.h"
+#include "db_structs.h"
 #include <wsjcpp_employees.h>
-
-struct UserInfo  {
-  std::string uuid;
-  std::string email;
-  std::string role;
-};
-
-struct UserSession  {
-  std::string uuid;
-  int expired_at;
-  UserInfo user;
-};
-
+#include <json.hpp>
 
 class EmployUsers : public WsjcppEmployBase {
 public:
@@ -51,10 +40,16 @@ public:
   virtual bool deinit(const std::string &sName, bool bSilent) override;
 
   bool createUser(const std::string &name, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error);
+  const nlohmann::json &rating();
 
 private:
+  void sortRatingTable();
+
   std::mutex m_mutex;
-  std::map<std::string, std::string> m_mapUserSecretToken;
+  std::map<std::string, UserInfo> m_mapUsers;
   std::map<std::string, std::string> m_mapSecretTokenUser;
+
+  std::mutex m_mutexRating;
+  nlohmann::json m_rating;
   std::string TAG;
 };

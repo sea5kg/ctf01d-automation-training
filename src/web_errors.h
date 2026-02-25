@@ -222,50 +222,15 @@ static const gtree::ErrorInfo ERR_10017_MISSING_FIELD_ROLE(
 
 static const gtree::ErrorInfo ERR_10018_USER_ALREADY_EXISTS(
     10018,
-    "User already exists '$email$' -> '$uuid$'",
-    "Пользователь уже существует '$email$' -> '$uuid$'",
+    "User already exists '$username$'",
+    "Пользователь уже существует '$username$'",
     ""
 );
 
 static const gtree::ErrorInfo ERR_10019_COULD_NOT_CREATE_USER(
     10019,
-    "Could not create user '$email$'",
-    "Не удалось создать пользователя '$email$'",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10020_MISSING_FIELD_EMAIL(
-    10020,
-    "Missing field 'email' or wrong type",
-    "Отсутствует поле 'email' или имеет неправильный тип.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10021_COULD_NOT_LOGIN(
-    10021,
-    "Could not login. Wrong email or password field.",
-    "Не удалось войти в систему. Неверный адрес электронной почты или пароль.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10022_MISSING_FIELD_PASS(
-    10022,
-    "Missing field 'pass' or wrong type.",
-    "Отсутствует поле 'pass' или имеет неправильный тип.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10023_ONLY_ADMIN_CAN_RESET_PASSWORD(
-    10023,
-    "Only admin can reset password.",
-    "Только администратор может сбросить пароль.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10024_MISSING_FIELD_PASS(
-    10024,
-    "Missing field 'pass' or wrong type",
-    "Отсутствует поле 'pass' или имеет неправильный тип.",
+    "Could not create user '$username$'",
+    "Не удалось создать пользователя '$username$'",
     ""
 );
 
@@ -290,16 +255,23 @@ static const gtree::ErrorInfo ERR_10027_USER_NOT_FOUND_WITH_EMAIL(
     ""
 );
 
-static const gtree::ErrorInfo ERR_10028_WRONG_PASSWORD(
-    10028,
-    "Wrong password.",
-    "Неверный пароль.",
-    ""
-);
-
 static const gtree::ErrorInfo ERR_10029_COULD_NOT_UPDATE_PASSWORD_FOR(
     10029,
     "Could not update password for '$email$', error = '$error$'",
     "Не удалось обновить пароль для '$email$', ошибка = '$error$'",
+    ""
+);
+
+static const gtree::ErrorInfo ERR_10030_USERNAME_TOO_SHORT(
+    10030,
+    "Username '$username$' too short",
+    "Имя '$username$' слишком короткое",
+    ""
+);
+
+static const gtree::ErrorInfo ERR_10031_USERNAME_TOO_LONG(
+    10031,
+    "Username '$username$' too long",
+    "Имя '$username$' слишком длинное",
     ""
 );

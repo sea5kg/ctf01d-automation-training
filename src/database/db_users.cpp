@@ -77,15 +77,19 @@ DbUsers::DbUsers() : DatabaseFile("users.db") {
 
 DbUsers::~DbUsers() {}
 
-
-std::map<std::string, std::string> DbUsers::getAllUsers() {
+std::map<std::string, UserInfo> DbUsers::getAllUsers() {
   std::lock_guard<std::mutex> lock(m_mutex);
 
-  std::map<std::string, std::string> ret;
+  std::map<std::string, UserInfo> ret;
   wsjcpp::SqlBuilder builder;
   builder.selectFrom("users")
     .colum("name")
     .colum("secret_token")
+    .colum("score")
+    .colum("attack")
+    .colum("shtraf")
+    .colum("tries")
+    .colum("dt_updated")
     // .where().equal("name", name)
   ;
   DatabaseSelectRows cur;
@@ -93,9 +97,15 @@ std::map<std::string, std::string> DbUsers::getAllUsers() {
     return ret;
   }
   while (cur.next()) {
-    std::string name = cur.getString(0);
-    std::string secret_token = cur.getString(1);
-    ret[name] = secret_token;
+    UserInfo info;
+    info.name = cur.getString(0);
+    info.secret_token = cur.getString(1);
+    info.score = cur.getLong(2);
+    info.attack = cur.getLong(3);
+    info.shtraf = cur.getLong(4);
+    info.tries = cur.getLong(5);
+    info.updated = cur.getLong(6);
+    ret[info.name] = info;
   }
   return ret;
 }
@@ -152,19 +162,20 @@ std::string DbUsers::findUserBySecretToken(const std::string &secret_token) {
   return unsafe_findUserBySecretToken(secret_token);
 }
 
-bool DbUsers::createUser(const std::string &name, std::string &secret_token) {
+bool DbUsers::createUser(const std::string &name, UserInfo &info) {
   std::lock_guard<std::mutex> lock(m_mutex);
 
   if (name.length() < 3) {
     WsjcppLog::err(TAG, "User name '" + name + "' to short");
     return false;
   }
+  info.name = name;
 
   {
     wsjcpp::SqlBuilder builder;
     builder.selectFrom("users")
       .colum("name")
-      .where().equal("name", name)
+      .where().equal("name", info.name)
     ;
     DatabaseSelectRows cur;
     if (!this->selectRows(builder.sql(), cur)) {
@@ -172,22 +183,23 @@ bool DbUsers::createUser(const std::string &name, std::string &secret_token) {
       return false;
     }
     if (cur.next()) {
-      WsjcppLog::err(TAG, "User '" + name + "' aready exists");
+      WsjcppLog::err(TAG, "User '" + info.name + "' aready exists");
       return false;
     }
   }
 
-  std::string random_secret_token = wsjcpp::Core::randomString(wsjcpp::Core::englishAlphabetBothCaseAndNumbers(), 5);
+  std::string random_secret_token = wsjcpp::Core::randomString(wsjcpp::Core::englishAlphabetBothCaseAndNumbers(), 7);
   std::string user_name = unsafe_findUserBySecretToken(random_secret_token);
 
   while (user_name != "") {
-    random_secret_token = wsjcpp::Core::randomString(wsjcpp::Core::englishAlphabetBothCaseAndNumbers(), 5);
+    random_secret_token = wsjcpp::Core::randomString(wsjcpp::Core::englishAlphabetBothCaseAndNumbers(), 7);
     user_name = unsafe_findUserBySecretToken(random_secret_token);
   }
 
   // return value
-  secret_token = random_secret_token;
+  info.secret_token = random_secret_token;
 
+  info.updated = WsjcppCore::getCurrentTimeInMilliseconds();
   wsjcpp::SqlBuilder builder;
   builder.insertInto("users")
     .addColums({
@@ -200,14 +212,14 @@ bool DbUsers::createUser(const std::string &name, std::string &secret_token) {
       "dt",
       "dt_updated"
     })
-    .val(name)
-    .val(secret_token)
+    .val(info.name)
+    .val(info.secret_token)
     .val(0) // score
     .val(0) // attack
     .val(0) // shtraf
     .val(0) // tries
     .val(WsjcppCore::getCurrentTimeInMilliseconds())
-    .val(WsjcppCore::getCurrentTimeInMilliseconds())
+    .val(info.updated)
   ;
   return this->executeQuery(builder.sql());
 }

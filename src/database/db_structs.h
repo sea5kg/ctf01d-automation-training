@@ -23,26 +23,14 @@
 
 #pragma once
 
-#include "database_file.h"
+#include <string>
 
-#include <map>
-
-class DbRating : public DatabaseFile {
-public:
-  DbRating();
-  ~DbRating();
-
-  std::pair<std::string, std::string> findUserByNameAndPass(const std::string &name, const std::string &pass);
-  std::string findUserUuid(const std::string &name);
-  bool createUser(const std::string &uuid, const std::string &name, const std::string &role, const std::string &pass);
-  bool removeUser(const std::string &uuid);
-  bool changeUserPassword(const std::string &uuid, const std::string &pass, std::string &error);
-
-private:
-  std::string findSoltByUuid(const std::string &uuid);
-  std::string createRandomSolt();
-
-
-  std::mutex m_mutex;
-  std::string TAG;
+struct UserInfo {
+  std::string name;
+  std::string secret_token;
+  int score = 0;
+  int attack = 0;
+  int shtraf = 0;
+  int tries = 0;
+  long updated = 0;
 };

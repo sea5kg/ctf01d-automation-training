@@ -56,7 +56,7 @@ private:
 
   // int checkAuth(std::shared_ptr<gtree::HandleContext> context);
   // int doLogin(std::shared_ptr<gtree::HandleContext> context);
-  // int doLogout(std::shared_ptr<gtree::HandleContext> context);
+  int rating(std::shared_ptr<gtree::HandleContext> context);
   int signup(std::shared_ptr<gtree::HandleContext> context);
   // int removeUser(std::shared_ptr<gtree::HandleContext> context);
   // int resetUserPassword(std::shared_ptr<gtree::HandleContext> context);

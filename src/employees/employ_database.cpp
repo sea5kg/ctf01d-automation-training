@@ -51,9 +51,6 @@ bool EmployDatabase::init(const std::string &sName, bool bSilent) {
   if (!this->initDbUsers()) {
     return false;
   }
-  if (!this->initDbRating()) {
-    return false;
-  }
   return true;
 }
 
@@ -64,8 +61,6 @@ bool EmployDatabase::deinit(const std::string &sName, bool bSilent) {
 std::shared_ptr<DbUuids> EmployDatabase::dbUuids() { return m_pUuids; }
 
 std::shared_ptr<DbUsers> EmployDatabase::dbUsers() { return m_pUsers; }
-
-std::shared_ptr<DbRating> EmployDatabase::dbRating() { return m_dbRating; }
 
 bool EmployDatabase::initDbUuids() {
   m_pUuids = std::make_shared<DbUuids>();
@@ -82,15 +77,6 @@ bool EmployDatabase::initDbUsers() {
     return false;
   }
   WsjcppLog::ok(TAG, "Initialized " + m_pUsers->getFileFullpath());
-  return true;
-}
-
-bool EmployDatabase::initDbRating() {
-  m_dbRating = std::make_shared<DbRating>();
-  if (!m_dbRating->open()) {
-    return false;
-  }
-  WsjcppLog::ok(TAG, "Initialized " + m_dbRating->getFileFullpath());
   return true;
 }
 

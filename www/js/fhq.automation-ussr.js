@@ -38,7 +38,7 @@ window.fhq.ui.get_token = function(){
       window.fhq.ui.updateLink();
     },
     error: function(xhr, data, data1){
-      console.log(xhr, data, data1)
+      // console.log(xhr, data, data1)
       if (xhr.status == 404) {
         $("#user-token").html("Ненайдена страница api/v1/signup/");
       } else {
@@ -76,16 +76,16 @@ window.fhq.ui.ratingName = [
   { s: 100000,    img: '21-generalissimus.png',     title: 'Генералиссимус' },
 ];
 
-window.fhq.ui.updateRating = function(){
+window.ctf01dUpdateRating = function(){
   // console.log("update rating");
-  if(!ur) ur = setInterval(fhq.ui.updateRating, 5000);
+  if(!ur) ur = setInterval(ctf01dUpdateRating, 5000);
   $.ajax({
     url: 'api/v1/rating/',
     type: 'GET',
     success: function(resp){
       // console.log(resp);
-      for(var i = 0; i < resp.rating.length; i++){
-        var t = resp.rating[i];
+      for(var i = 0; i < resp.result.length; i++){
+        var t = resp.result[i];
         if(($("#rating" + i)).length == 0){
           $("#rating").append('<div class="rating row" id="rating' + i + '"></div>');
         }
@@ -144,5 +144,5 @@ $(document).ready(function(){
 
   window.fhq.ui.updateLink();
 
-  fhq.ui.updateRating();
+  ctf01dUpdateRating();
 })

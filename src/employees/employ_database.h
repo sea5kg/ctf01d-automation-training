@@ -29,7 +29,6 @@
 #include <mutex>
 #include "db_uuids.h"
 #include "db_users.h"
-#include "db_rating.h"
 
 class EmployDatabase : public WsjcppEmployBase {
 public:
@@ -40,16 +39,13 @@ public:
 
   std::shared_ptr<DbUuids> dbUuids();
   std::shared_ptr<DbUsers> dbUsers();
-  std::shared_ptr<DbRating> dbRating();
 
 private:
   std::string TAG;
 
   bool initDbUuids();
   bool initDbUsers();
-  bool initDbRating();
 
   std::shared_ptr<DbUuids> m_pUuids;
   std::shared_ptr<DbUsers> m_pUsers;
-  std::shared_ptr<DbRating> m_dbRating;
 };
