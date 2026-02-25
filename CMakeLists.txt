@@ -26,6 +26,8 @@ list (APPEND WSJCPP_SOURCES "./src/handlers/request_handler.cpp")
 list (APPEND WSJCPP_SOURCES "./src/database/database_file.cpp")
 list (APPEND WSJCPP_SOURCES "./src/database/db_uuids.cpp")
 list (APPEND WSJCPP_SOURCES "./src/database/db_users.cpp")
+list (APPEND WSJCPP_SOURCES "./src/database/db_rating.cpp")
+
 
 # employees
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_config.cpp")

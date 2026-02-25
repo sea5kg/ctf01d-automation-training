@@ -21,35 +21,28 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
-
 #pragma once
 
-#include <wsjcpp_employees.h>
-#include <mutex>
-#include "db_uuids.h"
-#include "db_users.h"
-#include "db_rating.h"
+#include "database_file.h"
 
-class EmployDatabase : public WsjcppEmployBase {
+#include <map>
+
+class DbRating : public DatabaseFile {
 public:
-  EmployDatabase();
-  static std::string name() { return "EmployDatabase"; }
-  virtual bool init(const std::string &sName, bool bSilent);
-  virtual bool deinit(const std::string &sName, bool bSilent);
+  DbRating();
+  ~DbRating();
 
-  std::shared_ptr<DbUuids> dbUuids();
-  std::shared_ptr<DbUsers> dbUsers();
-  std::shared_ptr<DbRating> dbRating();
+  std::pair<std::string, std::string> findUserByNameAndPass(const std::string &name, const std::string &pass);
+  std::string findUserUuid(const std::string &name);
+  bool createUser(const std::string &uuid, const std::string &name, const std::string &role, const std::string &pass);
+  bool removeUser(const std::string &uuid);
+  bool changeUserPassword(const std::string &uuid, const std::string &pass, std::string &error);
 
 private:
+  std::string findSoltByUuid(const std::string &uuid);
+  std::string createRandomSolt();
+
+
+  std::mutex m_mutex;
   std::string TAG;
-
-  bool initDbUuids();
-  bool initDbUsers();
-  bool initDbRating();
-
-  std::shared_ptr<DbUuids> m_pUuids;
-  std::shared_ptr<DbUsers> m_pUsers;
-  std::shared_ptr<DbRating> m_dbRating;
 };
