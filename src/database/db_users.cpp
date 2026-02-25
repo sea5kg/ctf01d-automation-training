@@ -37,12 +37,14 @@ public:
     // IF NOT EXISTS
     return pDatabaseFile->executeQuery("CREATE TABLE users ( "
                                        "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                       "  uuid VARCHAR(36) NOT NULL,"
                                        "  name VARCHAR(128) NOT NULL,"
-                                       "  pass VARCHAR(40) NOT NULL,"
-                                       "  solt VARCHAR(40) NOT NULL,"
-                                       "  role VARCHAR(36) NOT NULL,"
-                                       "  dt INTEGER NOT NULL"
+                                       "  secret_token VARCHAR(128) NOT NULL,"
+                                       "  score INTEGER NOT NULL,"
+                                       "  attack INTEGER NOT NULL,"
+                                       "  shtraf INTEGER NOT NULL,"
+                                       "  tries INTEGER NOT NULL,"
+                                       "  dt INTEGER NOT NULL,"
+                                       "  dt_updated INTEGER NOT NULL"
                                        ");");
   }
 };
@@ -51,22 +53,15 @@ class DbUsersUpdate_001_002 : public DatabaseFileUpdate {
 public:
   DbUsersUpdate_001_002() : DatabaseFileUpdate("v001", "v002", "Create uniq index") {}
   virtual bool applyUpdate(DatabaseFile *pDatabaseFile) override {
-    return pDatabaseFile->executeQuery("CREATE UNIQUE INDEX IF NOT EXISTS users_col_uuid ON users (uuid)");
+    return pDatabaseFile->executeQuery("CREATE UNIQUE INDEX IF NOT EXISTS users_col_name ON users (name)");
   }
 };
 
 class DbUsersUpdate_002_003 : public DatabaseFileUpdate {
 public:
-  DbUsersUpdate_002_003() : DatabaseFileUpdate("v002", "v003", "Add default user") {}
+  DbUsersUpdate_002_003() : DatabaseFileUpdate("v002", "v003", "Create uniq index (2)") {}
   virtual bool applyUpdate(DatabaseFile *pDatabaseFile) override {
-    std::string uuid = "6d7d9de3-11ba-4c9f-beba-b34ead0e074b";
-    std::string name = "admin";
-    std::string pass = "admin";
-    std::string role = "admin";
-    std::string solt = "zAYgnGzoh2";
-    std::string pass_sha1 = "8bc1dbce82b9a3072d20b50e44a28e5154d4a921"; // sha1(pass + solt)
-    long dt = WsjcppCore::getCurrentTimeInMilliseconds();
-    return pDatabaseFile->executeQuery("INSERT INTO users(uuid, name, pass, solt, role, dt) VALUES('" + uuid + "', '" + name + "', '" + pass_sha1 + "', '" + solt + "', '" + role + "', " + std::to_string(dt) + ")");
+    return pDatabaseFile->executeQuery("CREATE UNIQUE INDEX IF NOT EXISTS users_secret_token ON users (secret_token)");
   }
 };
 
@@ -82,60 +77,136 @@ DbUsers::DbUsers() : DatabaseFile("users.db") {
 
 DbUsers::~DbUsers() {}
 
-std::pair<std::string, std::string> DbUsers::findUserByNameAndPass(const std::string &name, const std::string &pass) {
+
+std::map<std::string, std::string> DbUsers::getAllUsers() {
   std::lock_guard<std::mutex> lock(m_mutex);
 
-  std::string solt = "";
+  std::map<std::string, std::string> ret;
+  wsjcpp::SqlBuilder builder;
+  builder.selectFrom("users")
+    .colum("name")
+    .colum("secret_token")
+    // .where().equal("name", name)
+  ;
+  DatabaseSelectRows cur;
+  if (!this->selectRows(builder.sql(), cur)) {
+    return ret;
+  }
+  while (cur.next()) {
+    std::string name = cur.getString(0);
+    std::string secret_token = cur.getString(1);
+    ret[name] = secret_token;
+  }
+  return ret;
+}
+
+// std::pair<std::string, std::string> DbUsers::findUserByNameAndPass(const std::string &name, const std::string &pass) {
+//   std::lock_guard<std::mutex> lock(m_mutex);
+
+//   std::string solt = "";
+//   {
+//     wsjcpp::SqlBuilder builder;
+//     builder.selectFrom("users")
+//       .colum("solt")
+//       .where().equal("name", name)
+//     ;
+//     DatabaseSelectRows cur;
+//     if (!this->selectRows(builder.sql(), cur)) {
+//       return std::pair<std::string, std::string>("", "");
+//     }
+//     if (!cur.next()) {
+//       return std::pair<std::string, std::string>("", "");
+//     }
+//     solt = cur.getString(0);
+//   }
+//   std::string sha1_pass = WsjcppHashes::getSha1ByString(pass + solt);
+
+//   std::string uuid = "";
+//   std::string role = "";
+//   {
+//     wsjcpp::SqlBuilder builder;
+//     builder.selectFrom("users")
+//       .colum("uuid")
+//       .colum("role")
+//       .where()
+//         .equal("name", name)
+//         .and_()
+//         .equal("pass", sha1_pass)
+//     ;
+
+//     DatabaseSelectRows cur;
+//     if (!this->selectRows(builder.sql(), cur)) {
+//       return std::pair<std::string, std::string>("", "");
+//     }
+//     if (!cur.next()) {
+//       return std::pair<std::string, std::string>("", "");
+//     }
+//     uuid = cur.getString(0);
+//     role = cur.getString(1);
+//   }
+//   return std::pair<std::string, std::string>(uuid, role);
+// }
+
+std::string DbUsers::findUserBySecretToken(const std::string &secret_token) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  return unsafe_findUserBySecretToken(secret_token);
+}
+
+bool DbUsers::createUser(const std::string &name, std::string &secret_token) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+
+  if (name.length() < 3) {
+    WsjcppLog::err(TAG, "User name '" + name + "' to short");
+    return false;
+  }
+
   {
     wsjcpp::SqlBuilder builder;
     builder.selectFrom("users")
-      .colum("solt")
+      .colum("name")
       .where().equal("name", name)
     ;
     DatabaseSelectRows cur;
     if (!this->selectRows(builder.sql(), cur)) {
-      return std::pair<std::string, std::string>("", "");
+      WsjcppLog::err(TAG, "Problem with database");
+      return false;
     }
-    if (!cur.next()) {
-      return std::pair<std::string, std::string>("", "");
+    if (cur.next()) {
+      WsjcppLog::err(TAG, "User '" + name + "' aready exists");
+      return false;
     }
-    solt = cur.getString(0);
   }
-  std::string sha1_pass = WsjcppHashes::getSha1ByString(pass + solt);
 
-  std::string uuid = "";
-  std::string role = "";
-  {
-    wsjcpp::SqlBuilder builder;
-    builder.selectFrom("users")
-      .colum("uuid")
-      .colum("role")
-      .where()
-        .equal("name", name)
-        .and_()
-        .equal("pass", sha1_pass)
-    ;
+  std::string random_secret_token = wsjcpp::Core::randomString(wsjcpp::Core::englishAlphabetBothCaseAndNumbers(), 5);
+  std::string user_name = unsafe_findUserBySecretToken(random_secret_token);
 
-    DatabaseSelectRows cur;
-    if (!this->selectRows(builder.sql(), cur)) {
-      return std::pair<std::string, std::string>("", "");
-    }
-    if (!cur.next()) {
-      return std::pair<std::string, std::string>("", "");
-    }
-    uuid = cur.getString(0);
-    role = cur.getString(1);
+  while (user_name != "") {
+    random_secret_token = wsjcpp::Core::randomString(wsjcpp::Core::englishAlphabetBothCaseAndNumbers(), 5);
+    user_name = unsafe_findUserBySecretToken(random_secret_token);
   }
-  return std::pair<std::string, std::string>(uuid, role);
-}
 
-std::string DbUsers::findUserUuid(const std::string &name) {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  // return value
+  secret_token = random_secret_token;
 
   wsjcpp::SqlBuilder builder;
+  builder.insertInto("users")
+    .addColums({
+      "name",
+      "secret_token",
+      "dt"
+    })
+    .val(name)
+    .val(secret_token)
+    .val(WsjcppCore::getCurrentTimeInMilliseconds())
+  ;
+  return this->executeQuery(builder.sql());
+}
+
+std::string DbUsers::unsafe_findUserBySecretToken(const std::string &secret_token) {
+  wsjcpp::SqlBuilder builder;
   builder.selectFrom("users")
-    .colum("uuid")
-    .where().equal("name", name)
+    .colum("name")
+    .where().equal("secret_token", secret_token)
   ;
 
   DatabaseSelectRows cur;
@@ -146,87 +217,4 @@ std::string DbUsers::findUserUuid(const std::string &name) {
     return cur.getString(0);
   }
   return "";
-}
-
-bool DbUsers::createUser(
-  const std::string &uuid,
-  const std::string &name,
-  const std::string &role,
-  const std::string &pass
-) {
-  std::lock_guard<std::mutex> lock(m_mutex);
-
-  std::string solt = createRandomSolt();
-
-  std::string sha1_pass = WsjcppHashes::getSha1ByString(pass + solt);
-
-  wsjcpp::SqlBuilder builder;
-  builder.insertInto("users")
-    .addColums({
-      "uuid",
-      "name",
-      "pass",
-      "solt",
-      "role",
-      "dt"
-    })
-    .val(uuid)
-    .val(name)
-    .val(sha1_pass)
-    .val(solt)
-    .val(role)
-    .val(WsjcppCore::getCurrentTimeInMilliseconds())
-  ;
-  return this->executeQuery(builder.sql());
-}
-
-bool DbUsers::removeUser(const std::string &uuid) {
-  std::lock_guard<std::mutex> lock(m_mutex);
-  wsjcpp::SqlBuilder builder;
-  builder.deleteFrom("users")
-    .where().equal("uuid", uuid)
-  ;
-  return this->executeQuery(builder.sql());
-}
-
-bool DbUsers::changeUserPassword(const std::string &uuid, const std::string &pass, std::string &error) {
-  std::lock_guard<std::mutex> lock(m_mutex);
-
-  std::string solt = findSoltByUuid(uuid);
-  if (solt == "") {
-    error = "Could no find record in database (solt)";
-    return false;
-  }
-  std::string sha1_pass = WsjcppHashes::getSha1ByString(pass + solt);
-
-  wsjcpp::SqlBuilder builder;
-  builder.update("users")
-    .set("pass", sha1_pass)
-    .where().equal("uuid", uuid)
-  ;
-  return this->executeQuery(builder.sql());
-}
-
-std::string DbUsers::findSoltByUuid(const std::string &uuid) {
-  wsjcpp::SqlBuilder builder;
-  builder.selectFrom("users")
-    .colum("solt")
-    .where().equal("uuid", uuid)
-  ;
-  DatabaseSelectRows cur;
-  if (!this->selectRows(builder.sql(), cur)) {
-    return "";
-  }
-  if (!cur.next()) {
-    return "";
-  }
-  std::string solt = cur.getString(0);
-  return solt;
-}
-
-std::string DbUsers::createRandomSolt() {
-    return wsjcpp::Core::randomString(
-      wsjcpp::Core::englishAlphabetBothCaseAndNumbers(),
-      10
-    );
 }

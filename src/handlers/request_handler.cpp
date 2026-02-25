@@ -35,6 +35,10 @@ const std::string &HandleContext::methodName() {
   return m_method_name;
 }
 
+void HandleContext::setMethodName(const std::string &method_name) {
+  m_method_name = method_name;
+}
+
 const std::string &HandleContext::getMessageId() {
   return m_msg_id;
 }
@@ -85,6 +89,10 @@ bool HandleContext::parseBodyAndCheck(const std::string &body, std::shared_ptr<g
     m_msg_id = m_req_body["id"];
   }
   return true;
+}
+
+void HandleContext::setRequestBody(const nlohmann::json &req_body) {
+  m_req_body = req_body;
 }
 
 const nlohmann::json &HandleContext::requestBody() {

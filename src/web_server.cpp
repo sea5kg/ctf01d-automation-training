@@ -76,7 +76,7 @@ WebServer::WebServer() {
   m_sHtmlFolder = m_pConfig->getWebDir();
 
   m_pHttpService->GET("*", std::bind(&WebServer::httpGetRequests, this, std::placeholders::_1, std::placeholders::_2));
-  m_pHttpService->POST("*", std::bind(&WebServer::httpPostRequests, this, std::placeholders::_1, std::placeholders::_2));
+  m_pHttpService->POST("*", std::bind(&WebServer::httpApiRequests, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 hv::HttpService *WebServer::getService() {
@@ -89,7 +89,7 @@ int WebServer::httpGetRequests(HttpRequest* req, HttpResponse* resp) {
   std::string sRequestPath = normalizeRequestPath(req);
 
   if (sRequestPath == "/api" || sRequestPath.rfind("/api/", 0) == 0) {
-    return httpPostRequests(req, resp);
+    return httpApiRequests(req, resp);
   }
 
   if (sRequestPath == "/") {
@@ -113,42 +113,58 @@ int WebServer::httpGetRequests(HttpRequest* req, HttpResponse* resp) {
   return 404; // Not found
 }
 
-int WebServer::httpPostRequests(HttpRequest* req, HttpResponse* resp) {
-  std::string sRequestPath = normalizeRequestPath(req);
-
+int WebServer::httpApiRequests(HttpRequest* req, HttpResponse* resp) {
   auto context = std::make_shared<GTreeRequestResponse>(resp);
+  if (req->method != HTTP_POST && req->method != HTTP_GET) {
+    return context->error403(ERR_01001_ONLY_POST_OR_GET_REQUESTS);
+  }
 
-  auto now = std::chrono::system_clock::now().time_since_epoch();
-  int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
+  std::string sRequestPath = normalizeRequestPath(req);
+  WsjcppLog::info(TAG, "sRequestPath " + sRequestPath);
 
-  std::string auth = req->GetHeader("Authorization");
-  context->setAuth(auth);
+  // auto now = std::chrono::system_clock::now().time_since_epoch();
+  // int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
+
+  // std::string auth = req->GetHeader("Authorization");
+  // context->setAuth(auth);
   // WsjcppLog::info(TAG, "auth = " + auth);
 
-  if (req->method != HTTP_POST) {
-    return context->error403(ERR_01001_ONLY_POST_REQUESTS);
-  }
-
   std::shared_ptr<gtree::ErrorInfo> error;
-  if (!context->parseBodyAndCheck(req->body, error)) {
+  if (req->method == HTTP_POST && !context->parseBodyAndCheck(req->body, error)) {
     return context->error400(error);
   }
-
-  if (context->methodName() == "checkAuth") {
-    return checkAuth(context);
-  } else if (context->methodName() == "doLogin") {
-    return doLogin(context);
-  } else if (context->methodName() == "doLogout") {
-    return doLogout(context);
-  } else if (context->methodName() == "createUser") {
-    return createUser(context);
-  } else if (context->methodName() == "removeUser") {
-    return removeUser(context);
-  } else if (context->methodName() == "resetUserPassword") {
-    return resetUserPassword(context);
-  } else if (context->methodName() == "changePassword") {
-    return changePassword(context);
+  if (req->method == HTTP_GET) {
+    nlohmann::json params;
+    for (auto it = req->query_params.begin(); it != req->query_params.end(); ++it) {
+      params[it->first] = it->second;
+    }
+    nlohmann::json request;
+    request["jsonrpc"] = "2.0";
+    if (sRequestPath == "/api/v1/signup/") {
+      context->setMethodName("signup");
+      request["method"] = "signup";
+    }
+    request["params"] = params;
+    context->setRequestBody(request);
   }
+
+  if (context->methodName() == "signup") {
+    return signup(context);
+  }
+
+  // } else if (context->methodName() == "doLogin") {
+  //   return doLogin(context);
+  // } else if (context->methodName() == "doLogout") {
+  //   return doLogout(context);
+  // } else if (context->methodName() == "createUser") {
+  //   return createUser(context);
+  // } else if (context->methodName() == "removeUser") {
+  //   return removeUser(context);
+  // } else if (context->methodName() == "resetUserPassword") {
+  //   return resetUserPassword(context);
+  // } else if (context->methodName() == "changePassword") {
+  //   return changePassword(context);
+  // }
 
   return context->error404(ERR_01006_UNKNOWN_METHOD);
 }
@@ -167,83 +183,73 @@ std::string WebServer::normalizeRequestPath(HttpRequest* req) {
   return sRequestPath;
 }
 
-int WebServer::checkAuth(std::shared_ptr<gtree::HandleContext> context) {
-  // auth
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
-  if (req_session.uuid == "") {
-    return context->error401(ERR_01009_NOT_AUTHORIZED);
-  }
+// int WebServer::checkAuth(std::shared_ptr<gtree::HandleContext> context) {
+//   // auth
+//   // UserSession req_session = m_pUsers->findSession(context->getAuth());
+//   // if (req_session.uuid == "") {
+//   //   return context->error401(ERR_01009_NOT_AUTHORIZED);
+//   // }
 
-  nlohmann::json result;
-  result["session"] = req_session.uuid;
-  result["server_time"] = WsjcppCore::getCurrentTimeInSeconds();
-  return context->success(result);
-}
+//   nlohmann::json result;
+//   // result["session"] = req_session.uuid;
+//   result["server_time"] = WsjcppCore::getCurrentTimeInSeconds();
+//   return context->success(result);
+// }
 
-int WebServer::doLogin(std::shared_ptr<gtree::HandleContext> context) {
-  // auth
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
-  if (req_session.uuid != "") {
-    return context->error401(ERR_01008_YOU_ALREADY_AUTHORIZED);
-  }
+// int WebServer::doLogin(std::shared_ptr<gtree::HandleContext> context) {
+//   // auth
+//   UserSession req_session = m_pUsers->findSession(context->getAuth());
+//   if (req_session.uuid != "") {
+//     return context->error401(ERR_01008_YOU_ALREADY_AUTHORIZED);
+//   }
 
-  const nlohmann::json req = context->requestBody();
+//   const nlohmann::json req = context->requestBody();
 
-  if (!req["params"].is_object()) {
-    return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
-  }
+//   if (!req["params"].is_object()) {
+//     return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
+//   }
 
-  if (!req["params"]["email"].is_string()) {
-    return context->error400(ERR_10012_MISSING_FIELD_EMAIL);
-  }
-  if (!req["params"]["pass"].is_string()) {
-    return context->error400(ERR_10022_MISSING_FIELD_PASS);
-  }
-  std::string email = req["params"]["email"];
-  std::string pass = req["params"]["pass"];
-  UserSession session = m_pUsers->doLogin(email, pass);
-  if (session.uuid == "") {
-    return context->error401(ERR_10021_COULD_NOT_LOGIN);
-  }
+//   if (!req["params"]["email"].is_string()) {
+//     return context->error400(ERR_10012_MISSING_FIELD_EMAIL);
+//   }
+//   if (!req["params"]["pass"].is_string()) {
+//     return context->error400(ERR_10022_MISSING_FIELD_PASS);
+//   }
+//   std::string email = req["params"]["email"];
+//   std::string pass = req["params"]["pass"];
+//   UserSession session = m_pUsers->doLogin(email, pass);
+//   if (session.uuid == "") {
+//     return context->error401(ERR_10021_COULD_NOT_LOGIN);
+//   }
 
-  nlohmann::json result;
-  result["session"] = session.uuid;
-  nlohmann::json user;
-  user["email"] = session.user.email;
-  user["role"] = session.user.role;
-  result["user"] = user;
-  result["expired_at"] = session.expired_at;
-  result["server_time"] = WsjcppCore::getCurrentTimeInSeconds();
-  return context->success(result);
-}
+//   nlohmann::json result;
+//   result["session"] = session.uuid;
+//   nlohmann::json user;
+//   user["email"] = session.user.email;
+//   user["role"] = session.user.role;
+//   result["user"] = user;
+//   result["expired_at"] = session.expired_at;
+//   result["server_time"] = WsjcppCore::getCurrentTimeInSeconds();
+//   return context->success(result);
+// }
 
-int WebServer::doLogout(std::shared_ptr<gtree::HandleContext> context) {
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
+// int WebServer::doLogout(std::shared_ptr<gtree::HandleContext> context) {
+//   UserSession req_session = m_pUsers->findSession(context->getAuth());
 
-  if (req_session.uuid == "") {
-    return context->error401(ERR_01009_NOT_AUTHORIZED);
-  }
+//   if (req_session.uuid == "") {
+//     return context->error401(ERR_01009_NOT_AUTHORIZED);
+//   }
 
-  if (!m_pUsers->doLogout(req_session.uuid)) {
-    return context->error401(ERR_10011_COULD_NOT_DID_LOGOUT);
-  }
+//   if (!m_pUsers->doLogout(req_session.uuid)) {
+//     return context->error401(ERR_10011_COULD_NOT_DID_LOGOUT);
+//   }
 
-  nlohmann::json result;
-  result["removed_session"] = req_session.uuid;
-  return context->success(result);
-}
+//   nlohmann::json result;
+//   result["removed_session"] = req_session.uuid;
+//   return context->success(result);
+// }
 
-int WebServer::createUser(std::shared_ptr<gtree::HandleContext> context) {
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
-
-  if (req_session.uuid == "") {
-    return context->error401(ERR_01009_NOT_AUTHORIZED);
-  }
-
-  if (req_session.user.role != "admin") {
-    return context->error403(ERR_01010_ALLOWED_ONLY_FOR_ADMIN);
-  }
-
+int WebServer::signup(std::shared_ptr<gtree::HandleContext> context) {
   const nlohmann::json req = context->requestBody();
 
   if (!req["params"].is_object()) {
@@ -251,141 +257,133 @@ int WebServer::createUser(std::shared_ptr<gtree::HandleContext> context) {
     return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
   }
 
-  if (!req["params"]["email"].is_string()) {
-    return context->error400(ERR_10015_MISSING_FIELD_EMAIL);
-  }
-  if (!req["params"]["pass"].is_string()) {
-    return context->error400(ERR_10016_MISSING_FIELD_PASS);
-  }
-  if (!req["params"]["role"].is_string()) {
-    return context->error400(ERR_10017_MISSING_FIELD_ROLE);
+  if (!req["params"]["username"].is_string()) {
+    return context->error400(ERR_10015_MISSING_FIELD_NAME);
   }
 
-  std::string email = req["params"]["email"];
-  std::string pass = req["params"]["pass"];
-  std::string role = req["params"]["role"];
-
+  std::string username = req["params"]["username"];
+  std::string secret_token;
   std::shared_ptr<gtree::ErrorInfo> error;
-  if (!m_pUsers->createUser(email, pass, role, error)) {
+  if (!m_pUsers->createUser(username, secret_token, error)) {
     return context->error403(error);
   }
 
   nlohmann::json result;
-  result["email"] = email;
-  result["role"] = role;
+  result["username"] = username;
+  result["secret_token"] = secret_token;
   return context->success(result);
 }
 
-int WebServer::removeUser(std::shared_ptr<gtree::HandleContext> context) {
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
+// int WebServer::removeUser(std::shared_ptr<gtree::HandleContext> context) {
+//   UserSession req_session = m_pUsers->findSession(context->getAuth());
 
-  if (req_session.uuid == "") {
-    return context->error401(ERR_01009_NOT_AUTHORIZED);
-  }
+//   if (req_session.uuid == "") {
+//     return context->error401(ERR_01009_NOT_AUTHORIZED);
+//   }
 
-  if (req_session.user.role != "admin") {
-    return context->error403(ERR_01010_ALLOWED_ONLY_FOR_ADMIN);
-  }
+//   if (req_session.user.role != "admin") {
+//     return context->error403(ERR_01010_ALLOWED_ONLY_FOR_ADMIN);
+//   }
 
-  const nlohmann::json req = context->requestBody();
+//   const nlohmann::json req = context->requestBody();
 
-  if (!req["params"].is_object()) {
-    return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
-  }
+//   if (!req["params"].is_object()) {
+//     return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
+//   }
 
-  if (!req["params"]["email"].is_string()) {
-    return context->error400(ERR_10004_MISSING_FIELD_EMAIL);
-  }
+//   if (!req["params"]["email"].is_string()) {
+//     return context->error400(ERR_10004_MISSING_FIELD_EMAIL);
+//   }
 
-  std::string email = req["params"]["email"];
+//   std::string email = req["params"]["email"];
 
-  if (req_session.user.email == email) {
-    return context->error403(ERR_10008_YOU_CAN_NOT_DELETE_YOURSELF);
-  }
+//   if (req_session.user.email == email) {
+//     return context->error403(ERR_10008_YOU_CAN_NOT_DELETE_YOURSELF);
+//   }
 
-  std::shared_ptr<gtree::ErrorInfo> error;
-  if (!m_pUsers->removeUser(email, error)) {
-    return context->error403(std::move(error));
-  }
+//   std::shared_ptr<gtree::ErrorInfo> error;
+//   if (!m_pUsers->removeUser(email, error)) {
+//     return context->error403(std::move(error));
+//   }
 
-  // TODO remove from uuids
-  // TODO remove from sessions
+//   // TODO remove from uuids
+//   // TODO remove from sessions
 
-  nlohmann::json result;
-  result["email"] = email;
-  return context->success(result);
-}
+//   nlohmann::json result;
+//   result["email"] = email;
+//   return context->success(result);
+// }
 
-int WebServer::resetUserPassword(std::shared_ptr<gtree::HandleContext> context) {
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
+// int WebServer::resetUserPassword(std::shared_ptr<gtree::HandleContext> context) {
+//   UserSession req_session = m_pUsers->findSession(context->getAuth());
 
-  if (req_session.uuid == "") {
-    return context->error401(ERR_01009_NOT_AUTHORIZED);
-  }
+//   if (req_session.uuid == "") {
+//     return context->error401(ERR_01009_NOT_AUTHORIZED);
+//   }
 
-  if (req_session.user.role != "admin") {
-    return context->error403(ERR_10023_ONLY_ADMIN_CAN_RESET_PASSWORD);
-  }
+//   if (req_session.user.role != "admin") {
+//     return context->error403(ERR_10023_ONLY_ADMIN_CAN_RESET_PASSWORD);
+//   }
 
-  const nlohmann::json req = context->requestBody();
+//   const nlohmann::json req = context->requestBody();
 
-  if (!req["params"].is_object()) {
-    // std::cerr << "Not found field method " << std::endl;
-    return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
-  }
+//   if (!req["params"].is_object()) {
+//     // std::cerr << "Not found field method " << std::endl;
+//     return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
+//   }
 
-  if (!req["params"]["email"].is_string()) {
-    return context->error400(ERR_10020_MISSING_FIELD_EMAIL);
-  }
+//   if (!req["params"]["email"].is_string()) {
+//     return context->error400(ERR_10020_MISSING_FIELD_EMAIL);
+//   }
 
-  if (!req["params"]["pass"].is_string()) {
-    return context->error400(ERR_10024_MISSING_FIELD_PASS);
-  }
+//   if (!req["params"]["pass"].is_string()) {
+//     return context->error400(ERR_10024_MISSING_FIELD_PASS);
+//   }
 
-  std::string email = req["params"]["email"];
-  std::string pass = req["params"]["pass"];
+//   std::string email = req["params"]["email"];
+//   std::string pass = req["params"]["pass"];
 
-  std::shared_ptr<gtree::ErrorInfo> error;
-  if (!m_pUsers->resetUserPassword(email, pass, error)) {
-    return context->error403(error);
-  }
+//   std::shared_ptr<gtree::ErrorInfo> error;
+//   if (!m_pUsers->resetUserPassword(email, pass, error)) {
+//     return context->error403(error);
+//   }
 
-  nlohmann::json result;
-  result["email"] = email;
-  return context->success(result);
-}
+//   nlohmann::json result;
+//   result["email"] = email;
+//   return context->success(result);
+// }
 
-int WebServer::changePassword(std::shared_ptr<gtree::HandleContext> context) {
-  UserSession req_session = m_pUsers->findSession(context->getAuth());
+// int WebServer::changePassword(std::shared_ptr<gtree::HandleContext> context) {
+//   UserSession req_session = m_pUsers->findSession(context->getAuth());
 
-  if (req_session.uuid == "") {
-    return context->error401(ERR_01009_NOT_AUTHORIZED);
-  }
+//   if (req_session.uuid == "") {
+//     return context->error401(ERR_01009_NOT_AUTHORIZED);
+//   }
 
-  const nlohmann::json req = context->requestBody();
+//   const nlohmann::json req = context->requestBody();
 
-  if (!req["params"].is_object()) {
-    return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
-  }
+//   if (!req["params"].is_object()) {
+//     return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
+//   }
 
-  if (!req["params"]["old_pass"].is_string()) {
-    return context->error400(ERR_10014_MISSING_FIELD_OLD_PASS);
-  }
+//   if (!req["params"]["old_pass"].is_string()) {
+//     return context->error400(ERR_10014_MISSING_FIELD_OLD_PASS);
+//   }
 
-  if (!req["params"]["new_pass"].is_string()) {
-    return context->error400(ERR_10013_MISSING_FIELD_NEW_PASS);
-  }
+//   if (!req["params"]["new_pass"].is_string()) {
+//     return context->error400(ERR_10013_MISSING_FIELD_NEW_PASS);
+//   }
 
-  std::string email = req_session.user.email;
-  std::string old_pass = req["params"]["old_pass"];
-  std::string new_pass = req["params"]["new_pass"];
+//   std::string email = req_session.user.email;
+//   std::string old_pass = req["params"]["old_pass"];
+//   std::string new_pass = req["params"]["new_pass"];
 
-  std::shared_ptr<gtree::ErrorInfo> error;
-  if (!m_pUsers->changePassword(email, old_pass, new_pass, error)) {
-    return context->error403(error);
-  }
+//   std::shared_ptr<gtree::ErrorInfo> error;
+//   if (!m_pUsers->changePassword(email, old_pass, new_pass, error)) {
+//     return context->error403(error);
+//   }
 
-  nlohmann::json result;
-  result["email"] = email;
-  return context->success(result);
-}
+//   nlohmann::json result;
+//   result["email"] = email;
+//   return context->success(result);
+// }

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "gt_errors.h"
+#include "web_errors.h"
 #include "request_handler.h"
 
 
@@ -49,18 +49,18 @@ public:
   WebServer();
   hv::HttpService *getService();
   int httpGetRequests(HttpRequest* req, HttpResponse* resp);
-  int httpPostRequests(HttpRequest* req, HttpResponse* resp);
+  int httpApiRequests(HttpRequest* req, HttpResponse* resp);
 
 private:
   std::string normalizeRequestPath(HttpRequest* req);
 
-  int checkAuth(std::shared_ptr<gtree::HandleContext> context);
-  int doLogin(std::shared_ptr<gtree::HandleContext> context);
-  int doLogout(std::shared_ptr<gtree::HandleContext> context);
-  int createUser(std::shared_ptr<gtree::HandleContext> context);
-  int removeUser(std::shared_ptr<gtree::HandleContext> context);
-  int resetUserPassword(std::shared_ptr<gtree::HandleContext> context);
-  int changePassword(std::shared_ptr<gtree::HandleContext> context);
+  // int checkAuth(std::shared_ptr<gtree::HandleContext> context);
+  // int doLogin(std::shared_ptr<gtree::HandleContext> context);
+  // int doLogout(std::shared_ptr<gtree::HandleContext> context);
+  int signup(std::shared_ptr<gtree::HandleContext> context);
+  // int removeUser(std::shared_ptr<gtree::HandleContext> context);
+  // int resetUserPassword(std::shared_ptr<gtree::HandleContext> context);
+  // int changePassword(std::shared_ptr<gtree::HandleContext> context);
 
   std::string TAG;
   hv::HttpService *m_pHttpService;

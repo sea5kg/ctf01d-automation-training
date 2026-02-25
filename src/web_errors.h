@@ -65,10 +65,10 @@ public:
 
 } // namespace gtree
 
-static const gtree::ErrorInfo ERR_01001_ONLY_POST_REQUESTS(
+static const gtree::ErrorInfo ERR_01001_ONLY_POST_OR_GET_REQUESTS(
     1001,
-    "Only 'POST' requests will be handled.",
-    "Обрабатываться будут только запросы типа 'POST'.",
+    "Only 'POST' or 'GET' requests will be handled.",
+    "Обрабатываться будут только запросы типа 'POST' или 'GET'.",
     ""
 );
 
@@ -199,10 +199,10 @@ static const gtree::ErrorInfo ERR_10014_MISSING_FIELD_OLD_PASS(
     ""
 );
 
-static const gtree::ErrorInfo ERR_10015_MISSING_FIELD_EMAIL(
+static const gtree::ErrorInfo ERR_10015_MISSING_FIELD_NAME(
     10015,
-    "Missing field 'email' or wrong type.",
-    "Отсутствует поле 'email' или имеет неправильный тип.",
+    "Missing field 'name' or wrong type.",
+    "Отсутствует поле 'name' или имеет неправильный тип.",
     ""
 );
 

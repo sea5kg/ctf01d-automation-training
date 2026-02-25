@@ -27,7 +27,7 @@
 
 #include <memory>
 
-#include "gt_errors.h"
+#include "web_errors.h"
 #include <wsjcpp_employees.h>
 
 struct UserInfo  {
@@ -50,18 +50,11 @@ public:
   virtual bool init(const std::string &sName, bool bSilent);
   virtual bool deinit(const std::string &sName, bool bSilent) override;
 
-  UserSession doLogin(const std::string &name, const std::string &pass);
-  bool doLogout(const std::string &uuid);
-  UserSession findSession(const std::string &uuid);
-  bool createUser(const std::string &email, const std::string &pass, const std::string &role, std::shared_ptr<gtree::ErrorInfo> &error);
-  bool removeUser(const std::string &email, std::shared_ptr<gtree::ErrorInfo> &error);
-  bool resetUserPassword(const std::string &email, const std::string &pass, std::shared_ptr<gtree::ErrorInfo> &error);
-  bool changePassword(const std::string &email, const std::string &old_pass, const std::string &new_pass, std::shared_ptr<gtree::ErrorInfo> &error);
+  bool createUser(const std::string &name, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error);
 
 private:
   std::mutex m_mutex;
-  std::map<std::string, UserInfo> m_mapUserInfo;
-  std::map<std::string, std::string> m_mapSessionUserUuidCache;
-  std::map<std::string, int> m_mapSessionExpiredAt;
+  std::map<std::string, std::string> m_mapUserSecretToken;
+  std::map<std::string, std::string> m_mapSecretTokenUser;
   std::string TAG;
 };

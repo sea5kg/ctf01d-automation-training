@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "gt_errors.h"
+#include "web_errors.h"
 #include <string>
 #include <json.hpp>
 
@@ -38,11 +38,13 @@ public:
 
   // setters / getters
   const std::string &methodName();
+  void setMethodName(const std::string &method_name);
   const std::string &getMessageId();
   void setAuth(const std::string &auth);
   const std::string &getAuth();
 
   bool parseBodyAndCheck(const std::string &body, std::shared_ptr<gtree::ErrorInfo> &error);
+  void setRequestBody(const nlohmann::json &);
   const nlohmann::json &requestBody();
 
   // other method

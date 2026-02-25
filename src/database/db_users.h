@@ -32,13 +32,16 @@ public:
   DbUsers();
   ~DbUsers();
 
+  std::map<std::string, std::string> getAllUsers();
   std::pair<std::string, std::string> findUserByNameAndPass(const std::string &name, const std::string &pass);
-  std::string findUserUuid(const std::string &name);
-  bool createUser(const std::string &uuid, const std::string &name, const std::string &role, const std::string &pass);
-  bool removeUser(const std::string &uuid);
-  bool changeUserPassword(const std::string &uuid, const std::string &pass, std::string &error);
+  std::string findUserBySecretToken(const std::string &secret_token);
+  bool createUser(const std::string &name, std::string &secret_token);
+
+  
 
 private:
+  std::string unsafe_findUserBySecretToken(const std::string &secret_token);
+
   std::string findSoltByUuid(const std::string &uuid);
   std::string createRandomSolt();
 
