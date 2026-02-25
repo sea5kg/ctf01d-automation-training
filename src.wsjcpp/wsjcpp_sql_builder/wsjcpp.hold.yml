@@ -1,0 +1,36 @@
+name: "wsjcpp-sql-builder"
+version: v0.2.0
+cmake_minimum_required: "3.0"
+cmake_cxx_standard: "17"
+description: "C++ Class-helper for build SQL queries"
+authors:
+  - name: "Evgenii Sopov"
+    email: "mrseakg@gmail.com"
+
+origins:
+  - address: "https://sea5kg.ru/wsjcpp-package-registry/"
+    type: "package-registry"
+
+keywords:
+  - "c++"
+  - "sql"
+  - "builder"
+
+dependencies:
+  - name: "wsjcpp-core"
+    version: "v0.2.3"
+    url: "https://github.com/wsjcpp/wsjcpp-core:master"
+    origin: "https://github.com/"
+    installation-dir: "./src.wsjcpp/wsjcpp_core"
+    installation-datetime: "Sun, 10 Aug 2025 08:44:32 GMT"
+
+distribution:
+  - source-file: "src/wsjcpp_sql_builder.h"
+    target-file: "wsjcpp_sql_builder.h"
+    type: "source-code"
+    sha1: "6b10d4ef850a6f4be33083d3817ff85ad45a4cc9"
+  - source-file: "src/wsjcpp_sql_builder.cpp"
+    target-file: "wsjcpp_sql_builder.cpp"
+    type: "source-code"
+    sha1: "f849255096ab2f8ab8640483d8af50b1b5050e6f"
+

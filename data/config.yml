@@ -1,0 +1,7 @@
+web-port: 10555
+web-dir: ../www
+
+log-dir: ./logs
+log-rotation-period: 86400 # every 24h
+
+database-dir: ./dbs

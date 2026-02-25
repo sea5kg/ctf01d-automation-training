@@ -60,3 +60,6 @@ www/config.php
 cron_jury_config.py
 example/flags/*
 example/user_token.py
+
+/ctf01d-automation-training
+/tmp

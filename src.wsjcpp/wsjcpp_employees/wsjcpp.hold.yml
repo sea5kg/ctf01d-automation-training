@@ -1,0 +1,48 @@
+name: "wsjcpp-employees"
+version: "v0.1.3"
+cmake_minimum_required: "3.5"
+cmake_cxx_standard: "17"
+description: "c++ classes for service-architecture"
+
+authors:
+  - name: "Evgenii Sopov"
+    email: "mrseakg@gmail.com"
+
+origins:
+  - address: "https://sea-kg.com/wsjcpp-package-registry/"
+    type: "package-registry"
+
+keywords:
+  - "c++"
+
+distribution:
+  - source-file: "src/wsjcpp_employees.h"
+    target-file: "wsjcpp_employees.h"
+    type: "source-code"
+    sha1: "9014841ed376c96b8bed71557dbbabab2eaf407b"
+  - source-file: "src/wsjcpp_employees.cpp"
+    target-file: "wsjcpp_employees.cpp"
+    type: "source-code"
+    sha1: "6d0efb1be0741d0ef721cba07aa8357825487d6f"
+  - source-file: "scripts.wsjcpp/generate.WsjcppEmploy.wsjcpp-script"
+    target-file: "generate.WsjcppEmploy.wsjcpp-script"
+    type: "safe-scripting-generate"
+    sha1: "aa7f7e1ab7286f8f6df74ec7f3ab50167f279148"
+
+unit-tests:
+  cases:
+    - name: "Employ1"
+      description: "Test employ1"
+    - name: "EmployRuntimeGlobalCache"
+      description: "WsjcppEmployRuntimeGlobalCache"
+    - name: "CicleDependency"
+      description: "Test on cicle dependency"
+
+dependencies:
+  - name: "wsjcpp-core"
+    version: "v0.2.3"
+    url: "https://github.com/wsjcpp/wsjcpp-core:master"
+    origin: "https://github.com/"
+    installation-dir: "./src.wsjcpp/wsjcpp_core"
+    installation-datetime: "Fri, 18 Apr 2025 08:00:53 GMT"
+

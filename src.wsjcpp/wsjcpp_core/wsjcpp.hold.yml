@@ -1,0 +1,103 @@
+wsjcpp_version: v0.0.1
+cmake_cxx_standard: 17
+cmake_minimum_required: 3.0
+
+name: wsjcpp-core
+version: v0.2.4
+description: Basic Utils for wsjcpp
+issues: https://github.com/wsjcpp/wsjcpp-core/issues
+repositories:
+  - type: main
+    url: "https://github.com/wsjcpp/wsjcpp-core"
+keywords:
+  - c++
+  - wsjcpp
+
+authors:
+  - name: Evgenii Sopov
+    email: mrseakg@gmail.com
+
+distribution:
+  - source-file: src/wsjcpp_core.cpp
+    target-file: wsjcpp_core.cpp
+    type: "source-code"
+    sha1: "602b7a2a8e909e7ba439261f81a6eaf3c87d135f"
+  - source-file: src/wsjcpp_core.h
+    target-file: wsjcpp_core.h
+    type: "source-code" # todo must be header-file
+    sha1: "14a1d9a252631de959962d12c32122e8d8fe5444"
+  - source-file: "src/wsjcpp_unit_tests.cpp"
+    target-file: "wsjcpp_unit_tests.cpp"
+    type: "unit-tests"
+    sha1: "b96d9d06775069d0777cb168da16d432f019d5e9"
+  - source-file: "src/wsjcpp_unit_tests.h"
+    target-file: "wsjcpp_unit_tests.h"
+    type: "unit-tests"
+    sha1: "aa581f5678795a4a6b0ecc488181bb5289a03c6b"
+  - source-file: "src/wsjcpp_unit_tests_main.cpp"
+    target-file: "wsjcpp_unit_tests_main.cpp"
+    type: "unit-tests"
+    sha1: "cd50e0ba4b0ff7501ad0dc8e6c6ce9f5c735a787"
+  - source-file: "scripts.wsjcpp/generate.WsjcppUnitTest.wsjcpp-script"
+    target-file: "generate.WsjcppUnitTest.wsjcpp-script"
+    type: "safe-scripting-generate"
+    sha1: "a7c9c2d19bf81c5b00e659384b0b92a99319a4c1"
+  - source-file: "scripts.wsjcpp/generate.Class.wsjcpp-script"
+    target-file: "generate.Class.wsjcpp-script"
+    type: "safe-scripting-generate"
+    sha1: "de1799907c685d606b93e08b821b540c2faa2db1"
+
+unit-tests:
+  cases:
+    - name: CoreNormalizePath
+      description: Check function normalizePath
+    - name: CoreExtractFilename
+      description: Check function extract filenane from path
+    - name: "ToUpper"
+      description: "String to upper"
+    - name: "CreateUuid"
+      description: "Test generation uuids"
+    - name: "GetEnv"
+      description: "Test getEnv function"
+    - name: "ToLower"
+      description: "Test toLower"
+    - name: "ReplaceAll"
+      description: "Test replace all"
+    - name: "DecodeUriComponent"
+      description: "Check decoding"
+    - name: "EncodeUriComponent"
+      description: "Check encoding"
+    - name: "Uint2HexString"
+      description: "Test convert unsigned int to hex string"
+    - name: "Split"
+      description: "Test split function"
+    - name: "CreateEmptyFile"
+      description: "Test create empty file"
+    - name: "ReadFileToBuffer"
+      description: "test for readFileToBuffer"
+    - name: "Join"
+      description: "Test join function"
+    - name: "getHumanSizeBytes"
+      description: "Test function get human size in bytes"
+    - name: "TestResources"
+      description: "Test basic resources"
+    - name: "ListOfDirs"
+      description: "Check list of directories"
+    - name: "FilePermissions"
+      description: ""
+    - name: "StringPadding"
+      description: ""
+    - name: "DateTimeFormat"
+      description: ""
+    - name: "MakeDirsPath"
+      description: ""
+    - name: "ExtractDirpath"
+      description: ""
+    - name: "ExtractFilepath"
+      description: ""
+    - name: "StartsWith"
+      description: ""
+
+    - name: "EndsWith"
+      description: ""
+
