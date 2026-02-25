@@ -193,10 +193,20 @@ bool DbUsers::createUser(const std::string &name, std::string &secret_token) {
     .addColums({
       "name",
       "secret_token",
-      "dt"
+      "score",
+      "attack",
+      "shtraf",
+      "tries",
+      "dt",
+      "dt_updated"
     })
     .val(name)
     .val(secret_token)
+    .val(0) // score
+    .val(0) // attack
+    .val(0) // shtraf
+    .val(0) // tries
+    .val(WsjcppCore::getCurrentTimeInMilliseconds())
     .val(WsjcppCore::getCurrentTimeInMilliseconds())
   ;
   return this->executeQuery(builder.sql());
