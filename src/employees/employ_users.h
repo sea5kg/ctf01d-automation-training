@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #pragma once
 
@@ -39,7 +39,7 @@ public:
   virtual bool init(const std::string &sName, bool bSilent);
   virtual bool deinit(const std::string &sName, bool bSilent) override;
 
-  bool createUser(const std::string &name, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error);
+  bool createUser(const std::string &name, std::string &secret_token, std::shared_ptr<ctf01d::ErrorInfo> &error);
   const nlohmann::json &rating();
   std::string findUserByToken(const std::string &secret_token);
   void updateUserTries(const std::string &name);

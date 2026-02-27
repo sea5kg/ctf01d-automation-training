@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #include "employ_users.h"
 #include "web_errors.h"
@@ -64,11 +64,11 @@ bool EmployUsers::deinit(const std::string &sName, bool bSilent) {
   return true;
 }
 
-bool EmployUsers::createUser(const std::string &username, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error) {
+bool EmployUsers::createUser(const std::string &username, std::string &secret_token, std::shared_ptr<ctf01d::ErrorInfo> &error) {
   auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
 
   if (m_mapUsers.count(username) > 0) {
-    error = std::move(std::make_shared<gtree::ErrorInfo>(
+    error = std::move(std::make_shared<ctf01d::ErrorInfo>(
       ERR_10018_USER_ALREADY_EXISTS.replace("$username$", username)
     ));
     return false;
@@ -78,7 +78,7 @@ bool EmployUsers::createUser(const std::string &username, std::string &secret_to
   info.name = username;
 
   if (!dbUsers->createUser(info.name, info)) {
-    error = std::move(std::make_shared<gtree::ErrorInfo>(
+    error = std::move(std::make_shared<ctf01d::ErrorInfo>(
       ERR_10019_COULD_NOT_CREATE_USER.replace("$username$", username)
     ));
     return false;

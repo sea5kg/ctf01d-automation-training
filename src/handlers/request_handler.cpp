@@ -21,13 +21,13 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #include "request_handler.h"
 
 #include <iostream>
 
-namespace gtree {
+namespace ctf01d {
 
 // HandleContext
 
@@ -51,11 +51,11 @@ const std::string &HandleContext::getAuth() {
   return m_auth;
 }
 
-bool HandleContext::parseBodyAndCheck(const std::string &body, std::shared_ptr<gtree::ErrorInfo> &error) {
+bool HandleContext::parseBodyAndCheck(const std::string &body, std::shared_ptr<ctf01d::ErrorInfo> &error) {
   try {
     m_req_body = nlohmann::json::parse(body);
   } catch (nlohmann::json::parse_error& err) {
-    error = std::move(std::make_shared<gtree::ErrorInfo>(
+    error = std::move(std::make_shared<ctf01d::ErrorInfo>(
       ERR_01002_INVALID_INCOMING_JSON
     ));
     // std::cerr << "Parse error at byte: " << err.byte << std::endl;
@@ -63,21 +63,21 @@ bool HandleContext::parseBodyAndCheck(const std::string &body, std::shared_ptr<g
   }
 
   if (!m_req_body.is_object()) {
-    error = std::move(std::make_shared<gtree::ErrorInfo>(
+    error = std::move(std::make_shared<ctf01d::ErrorInfo>(
       ERR_01003_EXPECTED_JSON_INPUT
     ));
     return false;
   }
 
   if (!m_req_body["jsonrpc"].is_string()) {
-    error = std::move(std::make_shared<gtree::ErrorInfo>(
+    error = std::move(std::make_shared<ctf01d::ErrorInfo>(
       ERR_01004_MISSING_FIELD_JSONRPC
     ));
     return false;
   }
 
   if (!m_req_body["method"].is_string()) {
-    error = std::move(std::make_shared<gtree::ErrorInfo>(
+    error = std::move(std::make_shared<ctf01d::ErrorInfo>(
       ERR_01005_MISSING_FIELD_METHOD
     ));
     // std::cerr << "Not found field method " << std::endl;
@@ -130,7 +130,7 @@ int HandleContext::error400(const ErrorInfo &error) {
   return failed(400, error);
 }
 
-int HandleContext::error400(std::shared_ptr<gtree::ErrorInfo> error) {
+int HandleContext::error400(std::shared_ptr<ctf01d::ErrorInfo> error) {
   return failed(400, *(error.get()));
 }
 
@@ -138,7 +138,7 @@ int HandleContext::error401(const ErrorInfo &error) {
   return failed(401, error);
 }
 
-int HandleContext::error401(std::shared_ptr<gtree::ErrorInfo> error) {
+int HandleContext::error401(std::shared_ptr<ctf01d::ErrorInfo> error) {
   return failed(401, *(error.get()));
 }
 
@@ -146,7 +146,7 @@ int HandleContext::error403(const ErrorInfo &error) {
   return failed(403, error);
 }
 
-int HandleContext::error403(std::shared_ptr<gtree::ErrorInfo> error) {
+int HandleContext::error403(std::shared_ptr<ctf01d::ErrorInfo> error) {
   // return failed(403, std::move(error));
   return failed(403, *(error.get()));
 }
@@ -155,7 +155,7 @@ int HandleContext::error404(const ErrorInfo &error) {
   return failed(404, error);
 }
 
-int HandleContext::error404(std::shared_ptr<gtree::ErrorInfo> error) {
+int HandleContext::error404(std::shared_ptr<ctf01d::ErrorInfo> error) {
   return failed(404, *(error.get()));
 }
 
@@ -178,4 +178,4 @@ const std::string &RequestHandler::method() {
   return m_method_name;
 };
 
-} // namespace gtree
+} // namespace ctf01d

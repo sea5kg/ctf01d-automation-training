@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #pragma once
 
@@ -36,9 +36,9 @@
 #include <employ_config.h>
 #include <employ_users.h>
 
-class GTreeRequestResponse : public gtree::HandleContext {
+class Ctf01dRequestResponse : public ctf01d::HandleContext {
 public:
-  GTreeRequestResponse(HttpResponse* resp);
+  Ctf01dRequestResponse(HttpResponse* resp);
   virtual int response(int ret_http_code, const nlohmann::json &resp_json) override;
 private:
   HttpResponse* m_resp;
@@ -54,9 +54,9 @@ public:
 private:
   std::string normalizeRequestPath(HttpRequest* req);
 
-  int rating(std::shared_ptr<gtree::HandleContext> context);
-  int signup(std::shared_ptr<gtree::HandleContext> context);
-  int flag(std::shared_ptr<gtree::HandleContext> context);
+  int rating(std::shared_ptr<ctf01d::HandleContext> context);
+  int signup(std::shared_ptr<ctf01d::HandleContext> context);
+  int flag(std::shared_ptr<ctf01d::HandleContext> context);
 
   std::string TAG;
   hv::HttpService *m_pHttpService;
@@ -64,5 +64,5 @@ private:
   EmployUsers *m_pUsers;
 
   std::string m_sHtmlFolder;
-  std::map<std::string, std::shared_ptr<gtree::RequestHandler>> m_handlers;
+  std::map<std::string, std::shared_ptr<ctf01d::RequestHandler>> m_handlers;
 };

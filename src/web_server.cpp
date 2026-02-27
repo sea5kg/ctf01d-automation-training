@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #include "web_server.h"
 
@@ -36,11 +36,11 @@
 using namespace hv;
 
 
-GTreeRequestResponse::GTreeRequestResponse(HttpResponse* resp) : m_resp(resp) {
+Ctf01dRequestResponse::Ctf01dRequestResponse(HttpResponse* resp) : m_resp(resp) {
 
 };
 
-int GTreeRequestResponse::response(int ret_http_code, const nlohmann::json &resp_json) {
+int Ctf01dRequestResponse::response(int ret_http_code, const nlohmann::json &resp_json) {
   std::string text = resp_json.dump();
   m_resp->Data(
     (void *)(text.c_str()),
@@ -114,7 +114,7 @@ int WebServer::httpGetRequests(HttpRequest* req, HttpResponse* resp) {
 }
 
 int WebServer::httpApiRequests(HttpRequest* req, HttpResponse* resp) {
-  auto context = std::make_shared<GTreeRequestResponse>(resp);
+  auto context = std::make_shared<Ctf01dRequestResponse>(resp);
   if (req->method != HTTP_POST && req->method != HTTP_GET) {
     return context->error403(ERR_01001_ONLY_POST_OR_GET_REQUESTS);
   }
@@ -129,7 +129,7 @@ int WebServer::httpApiRequests(HttpRequest* req, HttpResponse* resp) {
   // context->setAuth(auth);
   // WsjcppLog::info(TAG, "auth = " + auth);
 
-  std::shared_ptr<gtree::ErrorInfo> error;
+  std::shared_ptr<ctf01d::ErrorInfo> error;
   if (req->method == HTTP_POST && !context->parseBodyAndCheck(req->body, error)) {
     return context->error400(error);
   }
@@ -183,12 +183,12 @@ std::string WebServer::normalizeRequestPath(HttpRequest* req) {
   return sRequestPath;
 }
 
-int WebServer::rating(std::shared_ptr<gtree::HandleContext> context) {
+int WebServer::rating(std::shared_ptr<ctf01d::HandleContext> context) {
   nlohmann::json result = m_pUsers->rating();
   return context->success(result);
 }
 
-int WebServer::signup(std::shared_ptr<gtree::HandleContext> context) {
+int WebServer::signup(std::shared_ptr<ctf01d::HandleContext> context) {
   const nlohmann::json req = context->requestBody();
 
   if (!req["params"].is_object()) {
@@ -210,7 +210,7 @@ int WebServer::signup(std::shared_ptr<gtree::HandleContext> context) {
   }
 
   std::string secret_token;
-  std::shared_ptr<gtree::ErrorInfo> error;
+  std::shared_ptr<ctf01d::ErrorInfo> error;
   if (!m_pUsers->createUser(username, secret_token, error)) {
     return context->error403(error);
   }
@@ -221,7 +221,7 @@ int WebServer::signup(std::shared_ptr<gtree::HandleContext> context) {
   return context->success(result);
 }
 
-int WebServer::flag(std::shared_ptr<gtree::HandleContext> context) {
+int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   const nlohmann::json req = context->requestBody();
 
   if (!req["params"].is_object()) {
@@ -256,7 +256,7 @@ int WebServer::flag(std::shared_ptr<gtree::HandleContext> context) {
   // }
 
   // std::string secret_token;
-  // std::shared_ptr<gtree::ErrorInfo> error;
+  // std::shared_ptr<ctf01d::ErrorInfo> error;
   // if (!m_pUsers->createUser(username, secret_token, error)) {
   //   return context->error403(error);
   // }

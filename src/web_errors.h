@@ -21,13 +21,13 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #pragma once
 
 #include <string>
 
-namespace gtree {
+namespace ctf01d {
 
 class ErrorInfo {
 public:
@@ -63,107 +63,107 @@ public:
   const std::string empty;
 };
 
-} // namespace gtree
+} // namespace ctf01d
 
-static const gtree::ErrorInfo ERR_01001_ONLY_POST_OR_GET_REQUESTS(
+static const ctf01d::ErrorInfo ERR_01001_ONLY_POST_OR_GET_REQUESTS(
     1001,
     "Only 'POST' or 'GET' requests will be handled.",
     "Обрабатываться будут только запросы типа 'POST' или 'GET'.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_01002_INVALID_INCOMING_JSON(
+static const ctf01d::ErrorInfo ERR_01002_INVALID_INCOMING_JSON(
     1002,
     "Invalid incoming json",
     "Недопустимый входящий JSON.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_01003_EXPECTED_JSON_INPUT(
+static const ctf01d::ErrorInfo ERR_01003_EXPECTED_JSON_INPUT(
     1003,
     "Expected json object input.",
     "Ожидаемый ввод: объект JSON.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_01004_MISSING_FIELD_JSONRPC(
+static const ctf01d::ErrorInfo ERR_01004_MISSING_FIELD_JSONRPC(
     1004,
     "Missing field 'jsonrpc'",
     "Отсутствует поле 'jsonrpc'.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_01005_MISSING_FIELD_METHOD(
+static const ctf01d::ErrorInfo ERR_01005_MISSING_FIELD_METHOD(
     1005,
     "Missing field 'method'",
     "Отсутствует поле 'method'.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_01006_UNKNOWN_METHOD(
+static const ctf01d::ErrorInfo ERR_01006_UNKNOWN_METHOD(
     1006,
     "Unknown method.",
     "Неизвестный метод.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS(
+static const ctf01d::ErrorInfo ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS(
     1007,
     "Missing or unexpected type for field 'params'.",
     "Отсутствует или указан неожиданный тип для поля 'params'.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10015_MISSING_FIELD_USERNAME(
+static const ctf01d::ErrorInfo ERR_10015_MISSING_FIELD_USERNAME(
     10015,
     "Missing field 'username' or wrong type.",
     "Отсутствует поле 'username' или имеет неправильный тип.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10016_MISSING_FIELD_FLAG(
+static const ctf01d::ErrorInfo ERR_10016_MISSING_FIELD_FLAG(
     10016,
     "Missing field 'flag' or wrong type.",
     "Отсутствует поле 'flag' или имеет неправильный тип.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10017_MISSING_FIELD_TOKEN(
+static const ctf01d::ErrorInfo ERR_10017_MISSING_FIELD_TOKEN(
     10017,
     "Missing field 'token' or wrong type.",
     "Отсутствует поле 'token' или имеет неправильный тип.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10018_USER_ALREADY_EXISTS(
+static const ctf01d::ErrorInfo ERR_10018_USER_ALREADY_EXISTS(
     10018,
     "User already exists '$username$'",
     "Пользователь уже существует '$username$'",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10019_COULD_NOT_CREATE_USER(
+static const ctf01d::ErrorInfo ERR_10019_COULD_NOT_CREATE_USER(
     10019,
     "Could not create user '$username$'",
     "Не удалось создать пользователя '$username$'",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND(
+static const ctf01d::ErrorInfo ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND(
     10025,
     "User not found by token '$token$'.",
     "Пользователь по токену '$token$' не найден.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10030_USERNAME_TOO_SHORT(
+static const ctf01d::ErrorInfo ERR_10030_USERNAME_TOO_SHORT(
     10030,
     "Username '$username$' too short",
     "Имя '$username$' слишком короткое",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10031_USERNAME_TOO_LONG(
+static const ctf01d::ErrorInfo ERR_10031_USERNAME_TOO_LONG(
     10031,
     "Username '$username$' too long",
     "Имя '$username$' слишком длинное",

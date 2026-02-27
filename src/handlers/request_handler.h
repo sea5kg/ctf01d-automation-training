@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #pragma once
 
@@ -29,7 +29,7 @@
 #include <string>
 #include <json.hpp>
 
-namespace gtree {
+namespace ctf01d {
 
 class HandleContext {
 public:
@@ -43,7 +43,7 @@ public:
   void setAuth(const std::string &auth);
   const std::string &getAuth();
 
-  bool parseBodyAndCheck(const std::string &body, std::shared_ptr<gtree::ErrorInfo> &error);
+  bool parseBodyAndCheck(const std::string &body, std::shared_ptr<ctf01d::ErrorInfo> &error);
   void setRequestBody(const nlohmann::json &);
   const nlohmann::json &requestBody();
 
@@ -51,13 +51,13 @@ public:
   int success(const nlohmann::json &result);
   int failed(int ret_http_code, const ErrorInfo &error);
   int error400(const ErrorInfo &error);
-  int error400(std::shared_ptr<gtree::ErrorInfo> error);
+  int error400(std::shared_ptr<ctf01d::ErrorInfo> error);
   int error401(const ErrorInfo &error);
-  int error401(std::shared_ptr<gtree::ErrorInfo> error);
+  int error401(std::shared_ptr<ctf01d::ErrorInfo> error);
   int error403(const ErrorInfo &error);
-  int error403(std::shared_ptr<gtree::ErrorInfo> error);
+  int error403(std::shared_ptr<ctf01d::ErrorInfo> error);
   int error404(const ErrorInfo &error);
-  int error404(std::shared_ptr<gtree::ErrorInfo> error);
+  int error404(std::shared_ptr<ctf01d::ErrorInfo> error);
 
 private:
   nlohmann::json prepareResponseJson();
@@ -80,4 +80,4 @@ private:
   std::string m_method_name;
 };
 
-} // namespace gtree
+} // namespace ctf01d

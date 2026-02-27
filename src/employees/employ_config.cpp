@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/gtree
+// https://github.com/sea5kg/ctf01d-automation-training-automation-training
 
 #include "employ_config.h"
 #include <wsjcpp_core.h>
@@ -273,7 +273,7 @@ bool EmployConfig::initLogging(WsjcppYaml &yamlConfig) {
       WsjcppLog::err(TAG, "Error: Folder '" + m_sLogDir + "' does not exists and could not created, please check access rights to parent folder.");
       return false;
   }
-  WsjcppLog::setPrefixLogFile("gtree");
+  WsjcppLog::setPrefixLogFile("ctf01-automation-training");
   WsjcppLog::setLogDirectory(m_sLogDir);
   WsjcppLog::setRotationPeriodInSec(yamlConfig["log-rotation-period"].valInt());
   WsjcppLog::setEnableLogFile(true);

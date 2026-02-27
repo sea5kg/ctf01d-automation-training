@@ -1,13 +1,13 @@
-name: "gtree.git"
+name: "ctf01-automation-training"
 version: "v0.0.1"
 cmake_minimum_required: "3.18"
 cmake_cxx_standard: "14"
-description: "GTree"
+description: "system for automation training ctf attack"
 authors:
   - name: "sea5kg"
     email: "mrseakg@gmail.com"
 origins:
-  - address: "https://sea-kg.com/wsjcpp-package-registry/"
+  - address: "https://wsjcpp.org/wsjcpp-package-registry/"
     type: "package-registry"
 keywords:
   - "c++"
