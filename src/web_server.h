@@ -54,13 +54,9 @@ public:
 private:
   std::string normalizeRequestPath(HttpRequest* req);
 
-  // int checkAuth(std::shared_ptr<gtree::HandleContext> context);
-  // int doLogin(std::shared_ptr<gtree::HandleContext> context);
   int rating(std::shared_ptr<gtree::HandleContext> context);
   int signup(std::shared_ptr<gtree::HandleContext> context);
-  // int removeUser(std::shared_ptr<gtree::HandleContext> context);
-  // int resetUserPassword(std::shared_ptr<gtree::HandleContext> context);
-  // int changePassword(std::shared_ptr<gtree::HandleContext> context);
+  int flag(std::shared_ptr<gtree::HandleContext> context);
 
   std::string TAG;
   hv::HttpService *m_pHttpService;

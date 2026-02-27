@@ -126,3 +126,27 @@ void EmployUsers::sortRatingTable() {
     }
   }
 }
+
+std::string EmployUsers::findUserByToken(const std::string &secret_token) {
+  auto it = m_mapSecretTokenUser.find(secret_token);
+  if (it == m_mapSecretTokenUser.end()) {
+    return ""; // user not found
+  }
+  return it->second;
+}
+
+void EmployUsers::updateUserTries(const std::string &name) {
+  auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
+
+  dbUsers->updateUserTries(name);
+
+  std::lock_guard<std::mutex> lock(m_mutexRating);
+  for (int i = 0; i < m_rating.size() - 1; i++) {
+    if (m_rating[i]["name"] == name) {
+      int tries = m_rating[i]["tries"];
+      m_rating[i]["tries"] = tries + 1;
+      break;
+    }
+  }
+
+}

@@ -140,6 +140,8 @@ int WebServer::httpApiRequests(HttpRequest* req, HttpResponse* resp) {
     }
     nlohmann::json request;
     request["jsonrpc"] = "2.0";
+    request["params"] = params;
+
     if (sRequestPath == "/api/v1/signup/") {
       context->setMethodName("signup");
       request["method"] = "signup";
@@ -148,7 +150,11 @@ int WebServer::httpApiRequests(HttpRequest* req, HttpResponse* resp) {
       context->setMethodName("rating");
       request["method"] = "rating";
     }
-    request["params"] = params;
+
+    if (sRequestPath == "/api/v1/flag/") {
+      context->setMethodName("flag");
+      request["method"] = "flag";
+    }
     context->setRequestBody(request);
   }
 
@@ -156,6 +162,8 @@ int WebServer::httpApiRequests(HttpRequest* req, HttpResponse* resp) {
     return signup(context);
   } else if (context->methodName() == "rating") {
     return rating(context);
+  } else if (context->methodName() == "flag") {
+    return flag(context);
   }
 
   return context->error404(ERR_01006_UNKNOWN_METHOD);
@@ -188,7 +196,7 @@ int WebServer::signup(std::shared_ptr<gtree::HandleContext> context) {
   }
 
   if (!req["params"]["username"].is_string()) {
-    return context->error400(ERR_10015_MISSING_FIELD_NAME);
+    return context->error400(ERR_10015_MISSING_FIELD_USERNAME);
   }
 
   std::string username = req["params"]["username"];
@@ -210,5 +218,51 @@ int WebServer::signup(std::shared_ptr<gtree::HandleContext> context) {
   nlohmann::json result;
   result["username"] = username;
   result["secret_token"] = secret_token;
+  return context->success(result);
+}
+
+int WebServer::flag(std::shared_ptr<gtree::HandleContext> context) {
+  const nlohmann::json req = context->requestBody();
+
+  if (!req["params"].is_object()) {
+    return context->error400(ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS);
+  }
+
+  if (!req["params"]["flag"].is_string()) {
+    return context->error400(ERR_10016_MISSING_FIELD_FLAG);
+  }
+
+  if (!req["params"]["token"].is_string()) {
+    return context->error400(ERR_10017_MISSING_FIELD_TOKEN);
+  }
+
+  std::string token = req["params"]["token"];
+
+  std::string username = m_pUsers->findUserByToken(token);
+  if (username == "") {
+    return context->error404(ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND.replace("$token$", token));
+  }
+
+  std::string flag = req["params"]["flag"];
+
+  m_pUsers->updateUserTries(username);
+
+  // if (username.length() < 3) {
+  //   return context->error400(ERR_10030_USERNAME_TOO_SHORT.replace("$username$", username));
+  // }
+
+  // if (username.length() > 10) {
+  //   return context->error400(ERR_10031_USERNAME_TOO_LONG.replace("$username$", username));
+  // }
+
+  // std::string secret_token;
+  // std::shared_ptr<gtree::ErrorInfo> error;
+  // if (!m_pUsers->createUser(username, secret_token, error)) {
+  //   return context->error403(error);
+  // }
+
+  nlohmann::json result;
+  result["username"] = username;
+  // result["secret_token"] = secret_token;
   return context->success(result);
 }

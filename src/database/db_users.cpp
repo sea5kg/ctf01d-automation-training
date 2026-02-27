@@ -110,53 +110,6 @@ std::map<std::string, UserInfo> DbUsers::getAllUsers() {
   return ret;
 }
 
-// std::pair<std::string, std::string> DbUsers::findUserByNameAndPass(const std::string &name, const std::string &pass) {
-//   std::lock_guard<std::mutex> lock(m_mutex);
-
-//   std::string solt = "";
-//   {
-//     wsjcpp::SqlBuilder builder;
-//     builder.selectFrom("users")
-//       .colum("solt")
-//       .where().equal("name", name)
-//     ;
-//     DatabaseSelectRows cur;
-//     if (!this->selectRows(builder.sql(), cur)) {
-//       return std::pair<std::string, std::string>("", "");
-//     }
-//     if (!cur.next()) {
-//       return std::pair<std::string, std::string>("", "");
-//     }
-//     solt = cur.getString(0);
-//   }
-//   std::string sha1_pass = WsjcppHashes::getSha1ByString(pass + solt);
-
-//   std::string uuid = "";
-//   std::string role = "";
-//   {
-//     wsjcpp::SqlBuilder builder;
-//     builder.selectFrom("users")
-//       .colum("uuid")
-//       .colum("role")
-//       .where()
-//         .equal("name", name)
-//         .and_()
-//         .equal("pass", sha1_pass)
-//     ;
-
-//     DatabaseSelectRows cur;
-//     if (!this->selectRows(builder.sql(), cur)) {
-//       return std::pair<std::string, std::string>("", "");
-//     }
-//     if (!cur.next()) {
-//       return std::pair<std::string, std::string>("", "");
-//     }
-//     uuid = cur.getString(0);
-//     role = cur.getString(1);
-//   }
-//   return std::pair<std::string, std::string>(uuid, role);
-// }
-
 std::string DbUsers::findUserBySecretToken(const std::string &secret_token) {
   std::lock_guard<std::mutex> lock(m_mutex);
   return unsafe_findUserBySecretToken(secret_token);
@@ -220,6 +173,38 @@ bool DbUsers::createUser(const std::string &name, UserInfo &info) {
     .val(0) // tries
     .val(WsjcppCore::getCurrentTimeInMilliseconds())
     .val(info.updated)
+  ;
+  return this->executeQuery(builder.sql());
+}
+
+bool DbUsers::updateUserTries(const std::string &name) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  // TODO
+  // UPDATE users SET tries = tries + 1 WHERE name = '115';
+
+  int tries = 0;
+  {
+    wsjcpp::SqlBuilder builder;
+    builder.selectFrom("users")
+      .colum("tries")
+      .where().equal("name", name)
+    ;
+    DatabaseSelectRows cur;
+    if (!this->selectRows(builder.sql(), cur)) {
+      WsjcppLog::err(TAG, "Problem with database");
+      return false;
+    }
+    if (cur.next()) {
+      tries = cur.getLong(0);
+    }
+  }
+
+  // TODO: tries = tries + 1 (after update sqlbuilder)
+  wsjcpp::SqlBuilder builder;
+  builder.update("users")
+    .set("tries", tries+1)
+    .set("dt_updated", WsjcppCore::getCurrentTimeInMilliseconds())
+    .where().equal("name", name)
   ;
   return this->executeQuery(builder.sql());
 }

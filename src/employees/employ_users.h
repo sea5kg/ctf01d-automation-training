@@ -41,6 +41,8 @@ public:
 
   bool createUser(const std::string &name, std::string &secret_token, std::shared_ptr<gtree::ErrorInfo> &error);
   const nlohmann::json &rating();
+  std::string findUserByToken(const std::string &secret_token);
+  void updateUserTries(const std::string &name);
 
 private:
   void sortRatingTable();

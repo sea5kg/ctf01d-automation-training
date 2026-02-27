@@ -199,24 +199,24 @@ static const gtree::ErrorInfo ERR_10014_MISSING_FIELD_OLD_PASS(
     ""
 );
 
-static const gtree::ErrorInfo ERR_10015_MISSING_FIELD_NAME(
+static const gtree::ErrorInfo ERR_10015_MISSING_FIELD_USERNAME(
     10015,
-    "Missing field 'name' or wrong type.",
-    "Отсутствует поле 'name' или имеет неправильный тип.",
+    "Missing field 'username' or wrong type.",
+    "Отсутствует поле 'username' или имеет неправильный тип.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10016_MISSING_FIELD_PASS(
+static const gtree::ErrorInfo ERR_10016_MISSING_FIELD_FLAG(
     10016,
-    "Missing field 'pass' or wrong type.",
-    "Отсутствует поле 'pass' или имеет неправильный тип.",
+    "Missing field 'flag' or wrong type.",
+    "Отсутствует поле 'flag' или имеет неправильный тип.",
     ""
 );
 
-static const gtree::ErrorInfo ERR_10017_MISSING_FIELD_ROLE(
+static const gtree::ErrorInfo ERR_10017_MISSING_FIELD_TOKEN(
     10017,
-    "Missing field 'role' or wrong type.",
-    "Отсутствует поле 'role' или имеет неправильный тип.",
+    "Missing field 'token' or wrong type.",
+    "Отсутствует поле 'token' или имеет неправильный тип.",
     ""
 );
 
@@ -234,10 +234,10 @@ static const gtree::ErrorInfo ERR_10019_COULD_NOT_CREATE_USER(
     ""
 );
 
-static const gtree::ErrorInfo ERR_10025_USER_NOT_FOUND_WITH_EMAIL(
+static const gtree::ErrorInfo ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND(
     10025,
-    "User not found with email '$email$'.",
-    "Пользователь с адресом электронной почты '$email$' не найден.",
+    "User not found by token '$token$'.",
+    "Пользователь по токену '$token$' не найден.",
     ""
 );
 
