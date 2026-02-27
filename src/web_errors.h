@@ -114,91 +114,6 @@ static const gtree::ErrorInfo ERR_01007_MISSING_OR_WRONG_FIELD_PARAMS(
     ""
 );
 
-static const gtree::ErrorInfo ERR_01008_YOU_ALREADY_AUTHORIZED(
-    1008,
-    "You already authorized.",
-    "Вы уже авторизованы..",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_01009_NOT_AUTHORIZED(
-    1009,
-    "You not authorized.",
-    "Вы не авторизованы.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_01010_ALLOWED_ONLY_FOR_ADMIN(
-    1010,
-    "Allowed only for admin.",
-    "Доступно только для администраторов.",
-    ""
-);
-
-
-// static const gtree::ErrorInfo ERR_02001_ALLOWED_ONLY_FOR_ADMIN(
-//     2001,
-//     "Allowed only for admin.",
-//     "Доступно только для администраторов.",
-//     ""
-// );
-
-static const gtree::ErrorInfo ERR_10004_MISSING_FIELD_EMAIL(
-    10004,
-    "Missing field 'email' or wrong type.",
-    "Отсутствует поле 'email' или указан неверный тип..",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10008_YOU_CAN_NOT_DELETE_YOURSELF(
-    10008,
-    "You can not delete yourself.",
-    "Вы не можете удалить себя.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10009_USER_NOT_FOUND_WITH_EMAIL(
-    10009,
-    "User not found with email '$email$'.",
-    "Пользователь с адресом электронной почты '$email$' не найден.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10010_COULD_NOT_REMOVE_USER_WITH_EMAIL(
-    10010,
-    "Could not remove user '$email$'.",
-    "Не удалось удалить пользователя '$email$'.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10011_COULD_NOT_DID_LOGOUT(
-    10011,
-    "Could not did logout.",
-    "Не удалось выйти из системы.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10012_MISSING_FIELD_EMAIL(
-    10012,
-    "Missing field 'email' or wrong type.",
-    "Отсутствует поле 'email' или указан неверный тип.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10013_MISSING_FIELD_NEW_PASS(
-    10013,
-    "Missing field 'new_pass' or wrong type.",
-    "Отсутствует поле 'new_pass' или указан неверный тип.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10014_MISSING_FIELD_OLD_PASS(
-    10014,
-    "Missing field 'old_pass' or wrong type.",
-    "Отсутствует поле 'old_pass' или имеет неправильный тип.",
-    ""
-);
-
 static const gtree::ErrorInfo ERR_10015_MISSING_FIELD_USERNAME(
     10015,
     "Missing field 'username' or wrong type.",
@@ -238,27 +153,6 @@ static const gtree::ErrorInfo ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND(
     10025,
     "User not found by token '$token$'.",
     "Пользователь по токену '$token$' не найден.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10026_COULD_NOT_UPDATE_PASSWORD_FOR(
-    10026,
-    "Could not update password for '$email$', error = '$error$'",
-    "Не удалось обновить пароль для '$email$', ошибка = '$error$'",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10027_USER_NOT_FOUND_WITH_EMAIL(
-    10027,
-    "User not found with email '$email$'.",
-    "Пользователь с адресом электронной почты '$email$' не найден.",
-    ""
-);
-
-static const gtree::ErrorInfo ERR_10029_COULD_NOT_UPDATE_PASSWORD_FOR(
-    10029,
-    "Could not update password for '$email$', error = '$error$'",
-    "Не удалось обновить пароль для '$email$', ошибка = '$error$'",
     ""
 );
 
