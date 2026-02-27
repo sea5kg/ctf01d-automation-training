@@ -86,6 +86,8 @@ bool EmployUsers::createUser(const std::string &username, std::string &secret_to
   m_mapUsers[info.name] = info;
   m_mapSecretTokenUser[info.secret_token] = info.name;
 
+  secret_token = info.secret_token;
+
   {
     std::lock_guard<std::mutex> lock(m_mutexRating);
     nlohmann::json rating_row;
@@ -141,7 +143,7 @@ void EmployUsers::updateUserTries(const std::string &name) {
   dbUsers->updateUserTries(name);
 
   std::lock_guard<std::mutex> lock(m_mutexRating);
-  for (int i = 0; i < m_rating.size() - 1; i++) {
+  for (int i = 0; i < m_rating.size(); i++) {
     if (m_rating[i]["name"] == name) {
       int tries = m_rating[i]["tries"];
       m_rating[i]["tries"] = tries + 1;
