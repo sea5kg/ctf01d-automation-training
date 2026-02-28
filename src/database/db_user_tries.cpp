@@ -32,9 +32,8 @@
 
 class DbUserTriesUpdate_000_001 : public DatabaseFileUpdate {
 public:
-  DbUserTriesUpdate_000_001() : DatabaseFileUpdate("", "v001", "Init table uuids") {}
+  DbUserTriesUpdate_000_001() : DatabaseFileUpdate("", "v001", "Init table user_tries") {}
   virtual bool applyUpdate(DatabaseFile *pDatabaseFile) override {
-    // IF NOT EXISTS
     return pDatabaseFile->executeQuery("CREATE TABLE users_tries ( "
                                        "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
                                        "  name VARCHAR(128) NOT NULL,"
