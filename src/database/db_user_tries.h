@@ -21,35 +21,21 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/ctf01d-automation-training-automation-training
-
 #pragma once
 
-#include <wsjcpp_employees.h>
-#include <mutex>
-#include "db_uuids.h"
-#include "db_users.h"
-#include "db_user_tries.h"
+#include "database_file.h"
+#include "db_structs.h"
+#include <map>
 
-class EmployDatabase : public WsjcppEmployBase {
+class DbUserTries : public DatabaseFile {
 public:
-  EmployDatabase();
-  static std::string name() { return "EmployDatabase"; }
-  virtual bool init(const std::string &sName, bool bSilent);
-  virtual bool deinit(const std::string &sName, bool bSilent);
+  DbUserTries();
+  ~DbUserTries();
 
-  std::shared_ptr<DbUuids> dbUuids();
-  std::shared_ptr<DbUsers> dbUsers();
-  std::shared_ptr<DbUserTries> dbUserTries();
+  bool findUserFlag(const std::string &username, const std::string &flag);
+  bool addUserFlag(const std::string &username, const std::string &flag, int score);
 
 private:
+  std::mutex m_mutex;
   std::string TAG;
-
-  bool initDbUuids();
-  bool initDbUsers();
-  bool initDbUserTries();
-
-  std::shared_ptr<DbUuids> m_pUuids;
-  std::shared_ptr<DbUsers> m_pUsers;
-  std::shared_ptr<DbUserTries> m_dbUsersTries;
 };
