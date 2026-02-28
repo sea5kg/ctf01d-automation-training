@@ -236,14 +236,34 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
     return context->error400(ERR_10017_MISSING_FIELD_TOKEN);
   }
 
+  // validate token
+
   std::string token = req["params"]["token"];
+
+  if (token.length() < 3) {
+    return context->error400(ERR_10032_TOKEN_TOO_SHORT.replace("$token$", token));
+  }
+
+  if (token.length() > 10) {
+    return context->error400(ERR_10033_TOKEN_TOO_LONG.replace("$token$", token));
+  }
+
+  // validate flag
+
+  std::string flag = req["params"]["flag"];
+
+  if (flag.length() < 3) {
+    return context->error400(ERR_10034_FLAG_TOO_SHORT.replace("$flag$", flag));
+  }
+
+  if (flag.length() > 36) {
+    return context->error400(ERR_10035_FLAG_TOO_LONG.replace("$flag$", flag));
+  }
 
   std::string username = m_pUsers->findUserByToken(token);
   if (username == "") {
     return context->error404(ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND.replace("$token$", token));
   }
-
-  std::string flag = req["params"]["flag"];
 
   m_pUsers->updateUserTries(username);
 

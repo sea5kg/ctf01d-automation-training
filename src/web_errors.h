@@ -169,3 +169,31 @@ static const ctf01d::ErrorInfo ERR_10031_USERNAME_TOO_LONG(
     "Имя '$username$' слишком длинное",
     ""
 );
+
+static const ctf01d::ErrorInfo ERR_10032_TOKEN_TOO_SHORT(
+    10032,
+    "Username '$token$' too short",
+    "Имя '$token$' слишком короткое",
+    ""
+);
+
+static const ctf01d::ErrorInfo ERR_10033_TOKEN_TOO_LONG(
+    10033,
+    "Username '$token$' too long",
+    "Имя '$token$' слишком длинное",
+    ""
+);
+
+static const ctf01d::ErrorInfo ERR_10034_FLAG_TOO_SHORT(
+    10034,
+    "Flag '$flag$' too short",
+    "Имя '$flag$' слишком короткое",
+    ""
+);
+
+static const ctf01d::ErrorInfo ERR_10035_FLAG_TOO_LONG(
+    10035,
+    "Flag '$flag$' too long",
+    "Имя '$flag$' слишком длинное",
+    ""
+);

@@ -15,10 +15,7 @@ window.fhq.ui.accept_flag = function(){
       $("#accept-result").html(response);
     },
     error: function(xhr){
-      if(xhr.status == 404)
-        $("#accept-result").html("Ненайдена страница api/v1/flag/");
-      else
-        $("#accept-result").html("Ошибка получения токена");
+      $("#accept-result").html("Ошибка " + xhr.responseJSON.error.code + " при регистрации: " + xhr.responseJSON.error.message_ru)
     }
   });
 }
@@ -121,8 +118,8 @@ window.fhq.ui.updateLink = function() {
   if (secret_token === null) {
     secret_token = "your_token";
   }
-
-  var link = "https://" + location.host + location.pathname + "api/v1/flag/?token=" + secret_token + "&flag=someflag";
+  var flag = "c01d4567-e89b-12d3-a456-426600000010"
+  var link = "https://" + location.host + location.pathname + "api/v1/flag/?token=" + secret_token + "&flag=" + flag;
   $('#link_send').attr({'href': link});
   $('#link_send').html(link);
 }
