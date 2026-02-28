@@ -61,27 +61,27 @@ bool EmployDatabase::deinit(const std::string &sName, bool bSilent) {
   return true;
 }
 
-std::shared_ptr<DbUuids> EmployDatabase::dbUuids() { return m_pUuids; }
+std::shared_ptr<DbUuids> EmployDatabase::dbUuids() { return m_dbUuids; }
 
-std::shared_ptr<DbUsers> EmployDatabase::dbUsers() { return m_pUsers; }
+std::shared_ptr<DbUsers> EmployDatabase::dbUsers() { return m_dbUsers; }
 
 std::shared_ptr<DbUserTries> EmployDatabase::dbUserTries() { return m_dbUsersTries; }
 
 bool EmployDatabase::initDbUuids() {
-  m_pUuids = std::make_shared<DbUuids>();
-  if (!m_pUuids->open()) {
+  m_dbUuids = std::make_shared<DbUuids>();
+  if (!m_dbUuids->open()) {
     return false;
   }
-  WsjcppLog::ok(TAG, "Initialized " + m_pUuids->getFileFullpath());
+  WsjcppLog::ok(TAG, "Initialized " + m_dbUuids->getFileFullpath());
   return true;
 }
 
 bool EmployDatabase::initDbUsers() {
-  m_pUsers = std::make_shared<DbUsers>();
-  if (!m_pUsers->open()) {
+  m_dbUsers = std::make_shared<DbUsers>();
+  if (!m_dbUsers->open()) {
     return false;
   }
-  WsjcppLog::ok(TAG, "Initialized " + m_pUsers->getFileFullpath());
+  WsjcppLog::ok(TAG, "Initialized " + m_dbUsers->getFileFullpath());
   return true;
 }
 

@@ -49,7 +49,7 @@ private:
   bool initDbUsers();
   bool initDbUserTries();
 
-  std::shared_ptr<DbUuids> m_pUuids;
-  std::shared_ptr<DbUsers> m_pUsers;
+  std::shared_ptr<DbUuids> m_dbUuids;
+  std::shared_ptr<DbUsers> m_dbUsers;
   std::shared_ptr<DbUserTries> m_dbUsersTries;
 };
