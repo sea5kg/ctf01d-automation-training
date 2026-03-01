@@ -54,7 +54,7 @@ int Ctf01dRequestResponse::response(int ret_http_code, const nlohmann::json &res
 WebServer::WebServer() {
   TAG = "WebServer";
   m_pConfig = findWsjcppEmploy<EmployConfig>();
-  m_pUsers = findWsjcppEmploy<EmployUsers>();
+  m_employUsers = findWsjcppEmploy<EmployUsers>();
 
   {
     logger_t* pLogger = hv_default_logger();
@@ -184,7 +184,7 @@ std::string WebServer::normalizeRequestPath(HttpRequest* req) {
 }
 
 int WebServer::rating(std::shared_ptr<ctf01d::HandleContext> context) {
-  nlohmann::json result = m_pUsers->rating();
+  nlohmann::json result = m_employUsers->rating();
   return context->success(result);
 }
 
@@ -211,7 +211,7 @@ int WebServer::signup(std::shared_ptr<ctf01d::HandleContext> context) {
 
   std::string secret_token;
   std::shared_ptr<ctf01d::ErrorInfo> error;
-  if (!m_pUsers->createUser(username, secret_token, error)) {
+  if (!m_employUsers->createUser(username, secret_token, error)) {
     return context->error403(error);
   }
 
@@ -241,10 +241,12 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   std::string token = req["params"]["token"];
 
   if (token.length() < 3) {
+    // TODO failed requests
     return context->error400(ERR_10032_TOKEN_TOO_SHORT.replace("$token$", token));
   }
 
   if (token.length() > 10) {
+    // TODO failed requests
     return context->error400(ERR_10033_TOKEN_TOO_LONG.replace("$token$", token));
   }
 
@@ -253,19 +255,22 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   std::string flag = req["params"]["flag"];
 
   if (flag.length() < 3) {
+    // TODO failed requests
     return context->error400(ERR_10034_FLAG_TOO_SHORT.replace("$flag$", flag));
   }
 
   if (flag.length() > 36) {
+    // TODO failed requests
     return context->error400(ERR_10035_FLAG_TOO_LONG.replace("$flag$", flag));
   }
 
-  std::string username = m_pUsers->findUserByToken(token);
+  std::string username = m_employUsers->findUserByToken(token);
   if (username == "") {
+    // TODO failed requests
     return context->error404(ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND.replace("$token$", token));
   }
 
-  m_pUsers->updateUserTries(username);
+  m_employUsers->updateUserTries(username);
 
   // if (username.length() < 3) {
   //   return context->error400(ERR_10030_USERNAME_TOO_SHORT.replace("$username$", username));
@@ -277,7 +282,7 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
 
   // std::string secret_token;
   // std::shared_ptr<ctf01d::ErrorInfo> error;
-  // if (!m_pUsers->createUser(username, secret_token, error)) {
+  // if (!m_employUsers->createUser(username, secret_token, error)) {
   //   return context->error403(error);
   // }
 

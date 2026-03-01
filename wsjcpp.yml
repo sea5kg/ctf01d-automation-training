@@ -36,11 +36,16 @@ dependencies:
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/wsjcpp_hashes"
     installation-datetime: "Thu, 22 Jan 2026 15:12:15 GMT"
-
   - name: "wsjcpp-sql-builder"
     version: "v0.2.0"
     url: "https://github.com/wsjcpp/wsjcpp-sql-builder:master"
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/wsjcpp_sql_builder"
     installation-datetime: "Mon, 02 Feb 2026 01:45:36 GMT"
+  - name: "HowardHinnant/date"
+    version: "v3.0.4"
+    url: "https://github.com/wsjcpp/HowardHinnant_date:master"
+    origin: "https://github.com/"
+    installation-dir: "./src.wsjcpp/HowardHinnant_date"
+    installation-datetime: "Sun, 01 Mar 2026 18:14:43 GMT"
 

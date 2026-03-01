@@ -61,7 +61,7 @@ private:
   std::string TAG;
   hv::HttpService *m_pHttpService;
   EmployConfig *m_pConfig;
-  EmployUsers *m_pUsers;
+  EmployUsers *m_employUsers;
 
   std::string m_sHtmlFolder;
   std::map<std::string, std::shared_ptr<ctf01d::RequestHandler>> m_handlers;

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 add_definitions(-DWSJCPP_APP_VERSION="v0.0.1")
-add_definitions(-DWSJCPP_APP_NAME="ctf01d-automation-training")
+add_definitions(-DWSJCPP_APP_NAME="ctf01-automation-training")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(MACOSX TRUE)
@@ -45,5 +45,9 @@ list (APPEND WSJCPP_SOURCES "${CMAKE_SOURCE_DIR}/./src.wsjcpp/wsjcpp_hashes/wsjc
 list (APPEND WSJCPP_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/./src.wsjcpp/wsjcpp_sql_builder/")
 list (APPEND WSJCPP_SOURCES "${CMAKE_SOURCE_DIR}/./src.wsjcpp/wsjcpp_sql_builder/wsjcpp_sql_builder.h")
 list (APPEND WSJCPP_SOURCES "${CMAKE_SOURCE_DIR}/./src.wsjcpp/wsjcpp_sql_builder/wsjcpp_sql_builder.cpp")
+
+# HowardHinnant/date:v3.0.4
+list (APPEND WSJCPP_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/./src.wsjcpp/HowardHinnant_date/")
+list (APPEND WSJCPP_SOURCES "${CMAKE_SOURCE_DIR}/./src.wsjcpp/HowardHinnant_date/date.h")
 
 

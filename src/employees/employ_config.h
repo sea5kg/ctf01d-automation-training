@@ -55,5 +55,6 @@ private:
   std::string m_sLogDir;
   std::string m_sWebDir;
   int m_nWebPort;
+  int m_startTimeTraining;
   std::string m_sDatabaseDir;
 };
