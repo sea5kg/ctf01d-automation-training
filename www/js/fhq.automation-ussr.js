@@ -15,7 +15,7 @@ window.fhq.ui.accept_flag = function(){
       $("#accept-result").html(response);
     },
     error: function(xhr){
-      $("#accept-result").html("Ошибка " + xhr.responseJSON.error.code + " при регистрации: " + xhr.responseJSON.error.message_ru)
+      $("#accept-result").html("Ошибка " + xhr.responseJSON.error.code + " при отправке флага: " + xhr.responseJSON.error.message_ru)
     }
   });
 }

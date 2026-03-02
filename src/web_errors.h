@@ -197,3 +197,17 @@ static const ctf01d::ErrorInfo ERR_10035_FLAG_TOO_LONG(
     "Имя '$flag$' слишком длинное",
     ""
 );
+
+static const ctf01d::ErrorInfo ERR_10036_TRRAINING_NOT_STARTED_YET(
+  10036,
+  "Training not started yet",
+  "Тренировка ещё не началась.",
+  ""
+);
+
+static const ctf01d::ErrorInfo ERR_10037_TRRAINING_ALREDE_ENDED(
+  10037,
+  "Training already ended",
+  "Тренировка уже закончилась.",
+  ""
+);

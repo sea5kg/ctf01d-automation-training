@@ -54,8 +54,6 @@ EmployConfig::~EmployConfig() {
 }
 
 bool EmployConfig::init(const std::string &sName, bool bSilent) {
-  m_startTimeTraining = WsjcppCore::getCurrentTimeInSeconds();
-
   std::vector<std::string> vPossibleFolders;
   std::string sWorkDirFromEnv = "";
   tryLoadFromEnv("WORKDIR", sWorkDirFromEnv, "Work Directory from enviroment");
@@ -100,35 +98,9 @@ bool EmployConfig::init(const std::string &sName, bool bSilent) {
     m_nWebPort = 10555;
   }
 
-  // start time training need for include timn to flag info
-  if (yamlConfig["start-time-training"].isNull()) {
-    WsjcppLog::warn(TAG, "Missing start-time-training. Will be created.");
-
-    std::chrono::seconds secs(m_startTimeTraining);
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> tp({secs});
-    // std::chrono::system_clock::time_point<std::chrono::system_clock, std::chrono::seconds> tp = std::chrono::system_clock::time_point{secs};
-
-    // date::detail::decimal_format_seconds<std::chrono::seconds> dfs(std::chrono::seconds{m_startTimeTraining});
-
-    std::string s = date::format("%Y-%m-%d %H:%M:%S", tp);
-    yamlConfig.getRoot()->setElementValue("start-time-training", s, WSJCPP_YAML_QUOTES_NONE, WSJCPP_YAML_QUOTES_DOUBLE);
-    WsjcppYamlNode *itemVal = yamlConfig.getRoot()->getElement("start-time-training");
-    itemVal->setComment("start time (will be automaticly added after first run - you can remove this and run again)"); // why not work ????
-    if (!yamlConfig.saveToFile(sConfigFile, sError)) {
-      WsjcppLog::err(TAG, "Could not save config: " + sConfigFile);
-    }
+  if (!readTimesTraining(sConfigFile, yamlConfig)) {
+    return false;
   }
-  std::string sStartTimeTraining = yamlConfig["start-time-training"].valStr();
-  {
-    std::istringstream in{sStartTimeTraining.c_str()};
-    date::sys_seconds tp;
-    in >> date::parse("%Y-%m-%d %H:%M:%S", tp);
-    m_startTimeTraining = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
-  }
-  WsjcppLog::info(TAG, "start-time-training: " + sStartTimeTraining);
-  WsjcppLog::info(TAG, "start-time-training: " + std::to_string(m_startTimeTraining));
-
-  // m_startTimeTraining = yamlConfig["start-time-training"].valInt();
 
   m_sDatabaseDir = handleRelatedDirPath(yamlConfig["database-dir"].valStr(), "/dbs");
   if (!WsjcppCore::dirExists(m_sDatabaseDir)) {
@@ -175,6 +147,15 @@ const std::string &EmployConfig::getLogDir() {
 const std::string &EmployConfig::getWebDir() {
   return m_sWebDir;
 }
+
+int EmployConfig::startTimeTraining() {
+  return m_startTimeTraining;
+}
+
+int EmployConfig::endTimeTraining() {
+  return m_endTimeTraining;
+}
+
 
 void EmployConfig::doExtractFilesIfNotExists() {
   // TODO
@@ -313,4 +294,81 @@ bool EmployConfig::initLogging(WsjcppYaml &yamlConfig) {
 
   WsjcppLog::info(TAG, "Logger: '" + m_sLogDir);
   return true;
+}
+
+bool EmployConfig::readTimesTraining(const std::string &configFilepath, WsjcppYaml &yamlConfig) {
+
+  // start time training need for include timn to flag info
+  if (yamlConfig["start-time-training"].isNull()) {
+    WsjcppLog::warn(TAG, "Missing start-time-training. Will be created.");
+    m_startTimeTraining = WsjcppCore::getCurrentTimeInSeconds();
+    createParamConfigDatetime(
+      yamlConfig,
+      "start-time-training",
+      m_startTimeTraining,
+      "start time (will be automaticly added after first run - you can remove this and run again)"
+    );
+    std::string sError;
+    if (!yamlConfig.saveToFile(configFilepath, sError)) {
+      WsjcppLog::err(TAG, "Could not save config: " + configFilepath);
+    }
+  } else {
+    std::string sStartTimeTraining = yamlConfig["start-time-training"].valStr();
+    WsjcppLog::info(TAG, "start-time-training: " + sStartTimeTraining);
+    m_startTimeTraining = formatedDateTimeToSeconds(sStartTimeTraining);
+  }
+  WsjcppLog::info(TAG, "start-time-training: " + std::to_string(m_startTimeTraining));
+
+  // end time training need for include timn to flag info
+  if (yamlConfig["end-time-training"].isNull()) {
+    WsjcppLog::warn(TAG, "Missing end-time-training. Will be created.");
+    m_endTimeTraining = m_startTimeTraining + 60*60*24*7; // one week after start training
+    createParamConfigDatetime(
+      yamlConfig,
+      "end-time-training",
+      m_endTimeTraining,
+      "end time (will be automaticly added after first run - you can remove this and run again)"
+    );
+    std::string sError;
+    if (!yamlConfig.saveToFile(configFilepath, sError)) {
+      WsjcppLog::err(TAG, "Could not save config: " + configFilepath);
+    }
+  } else {
+    std::string sEndTimeTraining = yamlConfig["end-time-training"].valStr();
+    WsjcppLog::info(TAG, "end-time-training: " + sEndTimeTraining);
+    m_endTimeTraining = formatedDateTimeToSeconds(sEndTimeTraining);
+  }
+  WsjcppLog::info(TAG, "end-time-training: " + std::to_string(m_endTimeTraining));
+
+  return true;
+}
+
+std::string EmployConfig::secondsToFormatedDateTime(int seconds) {
+  std::chrono::seconds ch_seconds(seconds);
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> tp({ch_seconds});
+  std::string ret = date::format("%Y-%m-%d %H:%M:%S", tp);
+  return ret;
+}
+
+int EmployConfig::formatedDateTimeToSeconds(const std::string &dt) {
+  std::istringstream in{dt.c_str()};
+  date::sys_seconds tp;
+  in >> date::parse("%Y-%m-%d %H:%M:%S", tp);
+  return std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
+}
+
+void EmployConfig::createParamConfigDatetime(
+  WsjcppYaml &yamlConfig,
+  const std::string &name,
+  int value_seconds,
+  const std::string &comment
+) {
+  yamlConfig.getRoot()->setElementValue(
+    name,
+    secondsToFormatedDateTime(value_seconds),
+    WSJCPP_YAML_QUOTES_NONE,
+    WSJCPP_YAML_QUOTES_DOUBLE
+  );
+  WsjcppYamlNode *itemVal = yamlConfig.getRoot()->getElement(name);
+  itemVal->setComment(comment);
 }

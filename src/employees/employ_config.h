@@ -42,6 +42,9 @@ public:
   const std::string &getLogDir();
   const std::string &getWebDir();
 
+  int startTimeTraining();
+  int endTimeTraining();
+
   // TODO
   void doExtractFilesIfNotExists();
 
@@ -49,6 +52,10 @@ private:
   bool tryLoadFromEnv(const std::string &sEnvName, std::string &sValue, const std::string &sDescription);
   std::string handleRelatedDirPath(const std::string &sDir, const std::string &sDefault);
   bool initLogging(WsjcppYaml &yamlConfig);
+  bool readTimesTraining(const std::string &sConfigFile, WsjcppYaml &yamlConfig);
+  std::string secondsToFormatedDateTime(int seconds);
+  int formatedDateTimeToSeconds(const std::string &dt);
+  void createParamConfigDatetime(WsjcppYaml &yamlConfig, const std::string &name, int value_seconds, const std::string &comment);
 
   std::string TAG;
   std::string m_sWorkDir;
@@ -56,5 +63,6 @@ private:
   std::string m_sWebDir;
   int m_nWebPort;
   int m_startTimeTraining;
+  int m_endTimeTraining;
   std::string m_sDatabaseDir;
 };

@@ -222,6 +222,19 @@ int WebServer::signup(std::shared_ptr<ctf01d::HandleContext> context) {
 }
 
 int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
+  auto now = std::chrono::system_clock::now().time_since_epoch();
+  int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
+  // std::string sRequestIP = req->client_addr.ip;
+  // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
+
+  if (nCurrentTimeSec < m_pConfig->startTimeTraining()) {
+    return context->error400(ERR_10036_TRRAINING_NOT_STARTED_YET);
+  }
+
+  if (nCurrentTimeSec > m_pConfig->endTimeTraining()) {
+    return context->error400(ERR_10037_TRRAINING_ALREDE_ENDED);
+  }
+
   const nlohmann::json req = context->requestBody();
 
   if (!req["params"].is_object()) {
@@ -272,19 +285,142 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
 
   m_employUsers->updateUserTries(username);
 
-  // if (username.length() < 3) {
-  //   return context->error400(ERR_10030_USERNAME_TOO_SHORT.replace("$username$", username));
+  // auto now = std::chrono::system_clock::now().time_since_epoch();
+  // int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
+  // std::string sRequestIP = req->client_addr.ip;
+  // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
+
+
+  // if (m_pConfig->gameHasCoffeeBreak()
+  //   && nCurrentTimeSec > m_pConfig->gameCoffeeBreakStartUTCInSec()
+  //   && nCurrentTimeSec < m_pConfig->gameCoffeeBreakEndUTCInSec()
+  // ) {
+  //   static const std::string sErrorMsg = "Error(-8): Game on coffeebreak now";
+  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 400;
   // }
 
-  // if (username.length() > 10) {
-  //   return context->error400(ERR_10031_USERNAME_TOO_LONG.replace("$username$", username));
+  // if (nCurrentTimeSec > m_pConfig->gameEndUTCInSec()) {
+  //   static const std::string sErrorMsg = "Error(-9): Game already ended";
+  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 400;
   // }
 
-  // std::string secret_token;
-  // std::shared_ptr<ctf01d::ErrorInfo> error;
-  // if (!m_employUsers->createUser(username, secret_token, error)) {
-  //   return context->error403(error);
+  // std::string sTeamId = req->GetParam("teamid");
+  // sTeamId = WsjcppCore::trim(sTeamId);
+  // sTeamId = WsjcppCore::toLower(sTeamId);
+  // std::string sFlag = req->GetParam("flag");
+  // sFlag = WsjcppCore::trim(sFlag);
+  // sFlag = WsjcppCore::toLower(sFlag);
+
+  // if (sTeamId == "") {
+  //   static const std::string sErrorMsg = "Error(-10): Not found get-parameter 'teamid' or parameter is empty";
+  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 400;
   // }
+
+  // if (sFlag == "") {
+  //   static const std::string sErrorMsg = "Error(-11): Not found get-parameter 'flag' or parameter is empty";
+  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 400;
+  // }
+
+  // // TODO optimize
+  // bool bTeamFound = false;
+  // for (unsigned int iteam = 0; iteam < m_pConfig->teamsConf().size(); iteam++) {
+  //   Ctf01dTeamDef teamConf = m_pConfig->teamsConf()[iteam];
+  //   if (teamConf.getId() == sTeamId) {
+  //       bTeamFound = true;
+  //   }
+  // }
+
+  // if (!bTeamFound) {
+  //   static const std::string sErrorMsg = "Error(-130): this is team not found";
+  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 400;
+  // }
+
+  // const static std::regex reFlagFormat("c01d[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}[0-9]{8,8}");
+  // if (!std::regex_match(sFlag, reFlagFormat)) {
+  //   static const std::string sErrorMsg = "Error(-140): flag has wrong format";
+  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 400;
+  // }
+  // m_pConfig->scoreboard()->incrementTries(sTeamId);
+
+  // m_pEmployDatabase->insertFlagAttempt(sTeamId, sFlag, sRequestIP);
+
+  // // TODO m_pEmployFlags->insertFlagAttempt(sTeamId, sFlag);
+
+  // Ctf01dFlag flag;
+  // if (!m_pConfig->scoreboard()->findFlagLive(sFlag, flag)) {
+  //   static const std::string sErrorMsg = "Error(-150): flag is too old or flag never existed or flag alredy stole.";
+  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 403;
+  // }
+
+  // long nCurrentTimeMSec = (long)nCurrentTimeSec;
+  // nCurrentTimeMSec = nCurrentTimeMSec*1000;
+
+  // if (flag.getTimeEndInMs() < nCurrentTimeMSec) {
+  //   // TODO
+  //   static const std::string sErrorMsg = "Error(-151): flag is too old";
+  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 403;
+  // }
+
+  // // if (flag.teamStole() == sTeamId) {
+  // //     response.forbidden().sendText("Error(-160): flag already stole by your team");
+  // //     WsjcppLog::err(TAG, "Error(-160): Recieved flag {" + sFlag + "} from {" + sTeamId + "} (flag already stole by your team)");
+  // //     return true;
+  // // }
+
+  // if (flag.getTeamId() == sTeamId) {
+  //   static const std::string sErrorMsg = "Error(-180): this is your flag";
+  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 403;
+  // }
+
+  // std::string sServiceStatus = m_pConfig->scoreboard()->serviceStatus(sTeamId, flag.getServiceId());
+
+  // // std::cout << "sServiceStatus: " << sServiceStatus << "\n";
+
+  // if (sServiceStatus != ServiceStatusCell::SERVICE_UP) {
+  //   static const std::string sErrorMsg = "Error(-190): Your same service is dead. Try later.";
+  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 403;
+  // }
+
+  // if (m_pEmployDatabase->isAlreadyStole(flag, sTeamId)) {
+  //   static const std::string sErrorMsg = "Error(-170): flag already stoled by your";
+  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
+  //   resp->String(sErrorMsg);
+  //   return 403;
+  // }
+
+  // // TODO light update scoreboard
+  // int nPoints = m_pConfig->scoreboard()->incrementAttackScore(flag, sTeamId);
+  // std::string sPoints = std::to_string(double(nPoints) / 10.0);
+
+  // std::string sResponse = "Accepted: Recieved flag {" + sFlag + "} from {" + sTeamId + "} (Accepted + " + sPoints + ")";
+  // WsjcppLog::ok(TAG, sResponse + sRequestIP_MsgSuffex);
+  // resp->Data(
+  //   (void *)(sResponse.c_str()),
+  //   sResponse.size(),
+  //   false // copy buffer
+  // );
+  // resp->content_type = TEXT_PLAIN;
+  // return 200;
 
   nlohmann::json result;
   result["username"] = username;
