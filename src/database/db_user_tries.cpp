@@ -44,12 +44,22 @@ public:
   }
 };
 
+class DbUserTriesUpdate_001_002 : public DatabaseFileUpdate {
+public:
+  DbUserTriesUpdate_001_002() : DatabaseFileUpdate("v001", "v002", "Create index username-flag") {}
+  virtual bool applyUpdate(DatabaseFile *pDatabaseFile) override {
+    return pDatabaseFile->executeQuery("CREATE INDEX IF NOT EXISTS users_tries_name_flag ON users_tries (name, flag)");
+  }
+};
+
+
 // ---------------------------------------------------------------------
 // DbUserTries
 
 DbUserTries::DbUserTries() : DatabaseFile("user_tries.db") {
   TAG = "DbUserTries";
   m_vDbUpdates.push_back(std::make_shared<DbUserTriesUpdate_000_001>());
+  m_vDbUpdates.push_back(std::make_shared<DbUserTriesUpdate_001_002>());
 };
 
 DbUserTries::~DbUserTries() {}
