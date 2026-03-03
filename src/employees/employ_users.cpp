@@ -152,3 +152,31 @@ void EmployUsers::updateUserTries(const std::string &name) {
   }
 
 }
+
+void EmployUsers::updateUserPenaltyAndTries(const std::string &name) {
+  std::lock_guard<std::mutex> lock(m_mutexRating);
+  int score = 0;
+  int attack = 0;
+  int tries = 0;
+  int penalty = 0;
+  for (int i = 0; i < m_rating.size(); i++) {
+    if (m_rating[i]["name"] == name) {
+      score = m_rating[i]["score"];
+      m_rating[i]["score"] = score - 1;
+      attack = m_rating[i]["score"];
+      tries = m_rating[i]["tries"];
+      m_rating[i]["tries"] = tries + 1;
+      penalty = m_rating[i]["shtraf"];
+      m_rating[i]["shtraf"] = penalty + 1;
+      break;
+    }
+  }
+  auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
+  dbUsers->updateUserRatings(
+    name,
+    score,
+    attack,
+    penalty,
+    tries
+  );
+}

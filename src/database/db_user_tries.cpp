@@ -127,7 +127,7 @@ bool DbUserTries::addUserFlag(const std::string &username, const std::string &fl
   std::lock_guard<std::mutex> lock(m_mutex);
 
   wsjcpp::SqlBuilder builder;
-  builder.insertInto("users")
+  builder.insertInto("users_tries")
     .addColums({
       "name",
       "flag",

@@ -27,6 +27,14 @@
 #include "db_structs.h"
 #include <map>
 
+
+struct UserRatings {
+  int score;
+  int attack;
+  int penalty;
+  int tries;
+};
+
 class DbUsers : public DatabaseFile {
 public:
   DbUsers();
@@ -36,6 +44,7 @@ public:
   std::string findUserBySecretToken(const std::string &secret_token);
   bool createUser(const std::string &name, UserInfo &info);
   bool updateUserTries(const std::string &name);
+  bool updateUserRatings(const std::string &name, int score, int attack, int penalty, int tries);
 
 private:
   std::string unsafe_findUserBySecretToken(const std::string &secret_token);

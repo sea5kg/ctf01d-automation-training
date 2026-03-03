@@ -53,13 +53,14 @@ int Ctf01dRequestResponse::response(int ret_http_code, const nlohmann::json &res
 
 WebServer::WebServer() {
   TAG = "WebServer";
-  m_pConfig = findWsjcppEmploy<EmployConfig>();
-  m_employUsers = findWsjcppEmploy<EmployUsers>();
+  m_config = findWsjcppEmploy<EmployConfig>();
+  m_users = findWsjcppEmploy<EmployUsers>();
+  m_db = findWsjcppEmploy<EmployDatabase>();
 
   {
     logger_t* pLogger = hv_default_logger();
     // logger_set_max_filesize(pLogger, 102400);
-    std::string sLogDirPath = m_pConfig->getLogDir() + "/hv";
+    std::string sLogDirPath = m_config->getLogDir() + "/hv";
     if (!WsjcppCore::dirExists(sLogDirPath)) {
         WsjcppCore::makeDir(sLogDirPath);
     }
@@ -72,8 +73,8 @@ WebServer::WebServer() {
   m_pHttpService = new HttpService();
 
   // static files
-  m_pHttpService->document_root = m_pConfig->getWebDir();
-  m_sHtmlFolder = m_pConfig->getWebDir();
+  m_pHttpService->document_root = m_config->getWebDir();
+  m_sHtmlFolder = m_config->getWebDir();
 
   m_pHttpService->GET("*", std::bind(&WebServer::httpGetRequests, this, std::placeholders::_1, std::placeholders::_2));
   m_pHttpService->POST("*", std::bind(&WebServer::httpApiRequests, this, std::placeholders::_1, std::placeholders::_2));
@@ -184,7 +185,7 @@ std::string WebServer::normalizeRequestPath(HttpRequest* req) {
 }
 
 int WebServer::rating(std::shared_ptr<ctf01d::HandleContext> context) {
-  nlohmann::json result = m_employUsers->rating();
+  nlohmann::json result = m_users->rating();
   return context->success(result);
 }
 
@@ -211,7 +212,7 @@ int WebServer::signup(std::shared_ptr<ctf01d::HandleContext> context) {
 
   std::string secret_token;
   std::shared_ptr<ctf01d::ErrorInfo> error;
-  if (!m_employUsers->createUser(username, secret_token, error)) {
+  if (!m_users->createUser(username, secret_token, error)) {
     return context->error403(error);
   }
 
@@ -227,11 +228,11 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   // std::string sRequestIP = req->client_addr.ip;
   // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
 
-  if (nCurrentTimeSec < m_pConfig->startTimeTraining()) {
+  if (nCurrentTimeSec < m_config->startTimeTraining()) {
     return context->error400(ERR_10036_TRRAINING_NOT_STARTED_YET);
   }
 
-  if (nCurrentTimeSec > m_pConfig->endTimeTraining()) {
+  if (nCurrentTimeSec > m_config->endTimeTraining()) {
     return context->error400(ERR_10037_TRRAINING_ALREDE_ENDED);
   }
 
@@ -277,13 +278,20 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
     return context->error400(ERR_10035_FLAG_TOO_LONG.replace("$flag$", flag));
   }
 
-  std::string username = m_employUsers->findUserByToken(token);
+  std::string username = m_users->findUserByToken(token);
   if (username == "") {
     // TODO failed requests
     return context->error404(ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND.replace("$token$", token));
   }
 
-  m_employUsers->updateUserTries(username);
+  if (m_db->dbUserTries()->findUserFlag(username, flag)) {
+    m_db->dbUserTries()->addUserFlag(username, flag, -1);
+    m_users->updateUserPenaltyAndTries(username);
+    return context->error400(ERR_10038_YOU_ALREADY_TRIED_THIS_FLAG.replace("$flag$", flag));
+  }
+
+  m_db->dbUserTries()->addUserFlag(username, flag, 0); // TODO if flag success -> 1
+  m_users->updateUserTries(username);
 
   // auto now = std::chrono::system_clock::now().time_since_epoch();
   // int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
@@ -291,9 +299,9 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
 
 
-  // if (m_pConfig->gameHasCoffeeBreak()
-  //   && nCurrentTimeSec > m_pConfig->gameCoffeeBreakStartUTCInSec()
-  //   && nCurrentTimeSec < m_pConfig->gameCoffeeBreakEndUTCInSec()
+  // if (m_config->gameHasCoffeeBreak()
+  //   && nCurrentTimeSec > m_config->gameCoffeeBreakStartUTCInSec()
+  //   && nCurrentTimeSec < m_config->gameCoffeeBreakEndUTCInSec()
   // ) {
   //   static const std::string sErrorMsg = "Error(-8): Game on coffeebreak now";
   //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
@@ -301,7 +309,7 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   //   return 400;
   // }
 
-  // if (nCurrentTimeSec > m_pConfig->gameEndUTCInSec()) {
+  // if (nCurrentTimeSec > m_config->gameEndUTCInSec()) {
   //   static const std::string sErrorMsg = "Error(-9): Game already ended";
   //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
   //   resp->String(sErrorMsg);
@@ -331,8 +339,8 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
 
   // // TODO optimize
   // bool bTeamFound = false;
-  // for (unsigned int iteam = 0; iteam < m_pConfig->teamsConf().size(); iteam++) {
-  //   Ctf01dTeamDef teamConf = m_pConfig->teamsConf()[iteam];
+  // for (unsigned int iteam = 0; iteam < m_config->teamsConf().size(); iteam++) {
+  //   Ctf01dTeamDef teamConf = m_config->teamsConf()[iteam];
   //   if (teamConf.getId() == sTeamId) {
   //       bTeamFound = true;
   //   }
@@ -352,14 +360,14 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   //   resp->String(sErrorMsg);
   //   return 400;
   // }
-  // m_pConfig->scoreboard()->incrementTries(sTeamId);
+  // m_config->scoreboard()->incrementTries(sTeamId);
 
   // m_pEmployDatabase->insertFlagAttempt(sTeamId, sFlag, sRequestIP);
 
   // // TODO m_pEmployFlags->insertFlagAttempt(sTeamId, sFlag);
 
   // Ctf01dFlag flag;
-  // if (!m_pConfig->scoreboard()->findFlagLive(sFlag, flag)) {
+  // if (!m_config->scoreboard()->findFlagLive(sFlag, flag)) {
   //   static const std::string sErrorMsg = "Error(-150): flag is too old or flag never existed or flag alredy stole.";
   //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
   //   resp->String(sErrorMsg);
@@ -390,7 +398,7 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   //   return 403;
   // }
 
-  // std::string sServiceStatus = m_pConfig->scoreboard()->serviceStatus(sTeamId, flag.getServiceId());
+  // std::string sServiceStatus = m_config->scoreboard()->serviceStatus(sTeamId, flag.getServiceId());
 
   // // std::cout << "sServiceStatus: " << sServiceStatus << "\n";
 
@@ -409,7 +417,7 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   // }
 
   // // TODO light update scoreboard
-  // int nPoints = m_pConfig->scoreboard()->incrementAttackScore(flag, sTeamId);
+  // int nPoints = m_config->scoreboard()->incrementAttackScore(flag, sTeamId);
   // std::string sPoints = std::to_string(double(nPoints) / 10.0);
 
   // std::string sResponse = "Accepted: Recieved flag {" + sFlag + "} from {" + sTeamId + "} (Accepted + " + sPoints + ")";

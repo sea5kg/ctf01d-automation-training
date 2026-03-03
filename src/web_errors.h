@@ -211,3 +211,11 @@ static const ctf01d::ErrorInfo ERR_10037_TRRAINING_ALREDE_ENDED(
   "Тренировка уже закончилась.",
   ""
 );
+
+static const ctf01d::ErrorInfo ERR_10038_YOU_ALREADY_TRIED_THIS_FLAG(
+  10038,
+  "You've already tried to hand in this flag '$flag$'. A fine has been issued.",
+  "Вы уже пытались сдать этот флаг '$flag$'. Наложен штраф.",
+  ""
+);
+

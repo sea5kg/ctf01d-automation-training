@@ -208,6 +208,21 @@ bool DbUsers::updateUserTries(const std::string &name) {
   return this->executeQuery(builder.sql());
 }
 
+bool DbUsers::updateUserRatings(const std::string &name, int score, int attack, int penalty, int tries) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  wsjcpp::SqlBuilder builder;
+  builder.update("users")
+    .set("score", score)
+    .set("attack", attack)
+    .set("shtraf", penalty)
+    .set("tries", tries)
+    .set("dt_updated", WsjcppCore::getCurrentTimeInMilliseconds())
+    .where().equal("name", name)
+  ;
+  return this->executeQuery(builder.sql());
+}
+
+
 std::string DbUsers::unsafe_findUserBySecretToken(const std::string &secret_token) {
   wsjcpp::SqlBuilder builder;
   builder.selectFrom("users")
@@ -224,3 +239,4 @@ std::string DbUsers::unsafe_findUserBySecretToken(const std::string &secret_toke
   }
   return "";
 }
+
