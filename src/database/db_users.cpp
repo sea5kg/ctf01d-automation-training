@@ -40,7 +40,7 @@ public:
                                        "  secret_token VARCHAR(128) NOT NULL,"
                                        "  score INTEGER NOT NULL,"
                                        "  attack INTEGER NOT NULL,"
-                                       "  shtraf INTEGER NOT NULL,"
+                                       "  penalty INTEGER NOT NULL,"
                                        "  tries INTEGER NOT NULL,"
                                        "  dt INTEGER NOT NULL,"
                                        "  dt_updated INTEGER NOT NULL"
@@ -86,7 +86,7 @@ std::map<std::string, UserInfo> DbUsers::getAllUsers() {
     .colum("secret_token")
     .colum("score")
     .colum("attack")
-    .colum("shtraf")
+    .colum("penalty")
     .colum("tries")
     .colum("dt_updated")
     // .where().equal("name", name)
@@ -101,7 +101,7 @@ std::map<std::string, UserInfo> DbUsers::getAllUsers() {
     info.secret_token = cur.getString(1);
     info.score = cur.getLong(2);
     info.attack = cur.getLong(3);
-    info.shtraf = cur.getLong(4);
+    info.penalty = cur.getLong(4);
     info.tries = cur.getLong(5);
     info.updated = cur.getLong(6);
     ret[info.name] = info;
@@ -159,7 +159,7 @@ bool DbUsers::createUser(const std::string &name, UserInfo &info) {
       "secret_token",
       "score",
       "attack",
-      "shtraf",
+      "penalty",
       "tries",
       "dt",
       "dt_updated"
@@ -168,7 +168,7 @@ bool DbUsers::createUser(const std::string &name, UserInfo &info) {
     .val(info.secret_token)
     .val(0) // score
     .val(0) // attack
-    .val(0) // shtraf
+    .val(0) // penalty
     .val(0) // tries
     .val(WsjcppCore::getCurrentTimeInMilliseconds())
     .val(info.updated)
@@ -208,14 +208,14 @@ bool DbUsers::updateUserTries(const std::string &name) {
   return this->executeQuery(builder.sql());
 }
 
-bool DbUsers::updateUserRatings(const std::string &name, int score, int attack, int penalty, int tries) {
+bool DbUsers::updateUserRatings(const std::string &name, const UserRatings &rating) {
   std::lock_guard<std::mutex> lock(m_mutex);
   wsjcpp::SqlBuilder builder;
   builder.update("users")
-    .set("score", score)
-    .set("attack", attack)
-    .set("shtraf", penalty)
-    .set("tries", tries)
+    .set("score", rating.score)
+    .set("attack", rating.attack)
+    .set("penalty", rating.penalty)
+    .set("tries", rating.tries)
     .set("dt_updated", WsjcppCore::getCurrentTimeInMilliseconds())
     .where().equal("name", name)
   ;

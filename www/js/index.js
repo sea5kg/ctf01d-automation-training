@@ -105,7 +105,7 @@ window.ctf01dUpdateRating = function(){
           + '<div class="cell">' + t.score + '</div>'
           + '<div class="cell">' + t.name + '</div>'
           + '<div class="cell">' + t.attack + '</div>'
-          + '<div class="cell">' + t.shtraf + '</div>'
+          + '<div class="cell">' + t.penalty + '</div>'
           + '<div class="cell">' + t.tries + '</div>'
         );
       }

@@ -30,7 +30,7 @@ struct UserInfo {
   std::string secret_token;
   int score = 0;
   int attack = 0;
-  int shtraf = 0;
+  int penalty = 0;
   int tries = 0;
   long updated = 0;
 };

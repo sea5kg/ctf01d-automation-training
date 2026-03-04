@@ -44,7 +44,7 @@ public:
   std::string findUserBySecretToken(const std::string &secret_token);
   bool createUser(const std::string &name, UserInfo &info);
   bool updateUserTries(const std::string &name);
-  bool updateUserRatings(const std::string &name, int score, int attack, int penalty, int tries);
+  bool updateUserRatings(const std::string &name, const UserRatings &rating);
 
 private:
   std::string unsafe_findUserBySecretToken(const std::string &secret_token);

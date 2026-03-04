@@ -49,7 +49,7 @@ bool EmployUsers::init(const std::string &sName, bool bSilent) {
     rating_row["name"] = info.name;
     rating_row["score"] = info.score;
     rating_row["attack"] = info.attack;
-    rating_row["shtraf"] = info.shtraf;
+    rating_row["penalty"] = info.penalty;
     rating_row["tries"] = info.tries;
     rating_row["updated"] = info.updated;
     m_rating.push_back(rating_row);
@@ -94,7 +94,7 @@ bool EmployUsers::createUser(const std::string &username, std::string &secret_to
     rating_row["name"] = info.name;
     rating_row["score"] = info.score;
     rating_row["attack"] = info.attack;
-    rating_row["shtraf"] = info.shtraf;
+    rating_row["penalty"] = info.penalty;
     rating_row["tries"] = info.tries;
     rating_row["updated"] = info.updated;
     m_rating.push_back(rating_row);
@@ -113,17 +113,19 @@ void EmployUsers::sortRatingTable() {
   int mutates = 1;
   while (mutates > 0) {
     mutates = 0;
-    for (int i = 0; i < m_rating.size() - 1; i++) {
-      int current_score = m_rating[i]["score"];
-      int current_updated = m_rating[i]["updated"];
-      int next_score = m_rating[i+1]["score"];
-      int next_updated = m_rating[i+1]["updated"];
-      if (
-        (current_score < next_score)
-        || (current_score == next_score && current_updated > next_updated)
-      ) {
-        std::swap(m_rating[i], m_rating[i+1]);
-        mutates++;
+    if (m_rating.size() > 1) {
+      for (int i = 0; i < m_rating.size() - 1; i++) {
+        int current_score = m_rating[i]["score"];
+        int current_updated = m_rating[i]["updated"];
+        int next_score = m_rating[i+1]["score"];
+        int next_updated = m_rating[i+1]["updated"];
+        if (
+          (current_score < next_score)
+          || (current_score == next_score && current_updated > next_updated)
+        ) {
+          std::swap(m_rating[i], m_rating[i+1]);
+          mutates++;
+        }
       }
     }
   }
@@ -147,6 +149,7 @@ void EmployUsers::updateUserTries(const std::string &name) {
     if (m_rating[i]["name"] == name) {
       int tries = m_rating[i]["tries"];
       m_rating[i]["tries"] = tries + 1;
+      m_rating[i]["updated"] = WsjcppCore::getCurrentTimeInMilliseconds();
       break;
     }
   }
@@ -155,28 +158,25 @@ void EmployUsers::updateUserTries(const std::string &name) {
 
 void EmployUsers::updateUserPenaltyAndTries(const std::string &name) {
   std::lock_guard<std::mutex> lock(m_mutexRating);
-  int score = 0;
-  int attack = 0;
-  int tries = 0;
-  int penalty = 0;
+  UserRatings rating;
   for (int i = 0; i < m_rating.size(); i++) {
     if (m_rating[i]["name"] == name) {
-      score = m_rating[i]["score"];
-      m_rating[i]["score"] = score - 1;
-      attack = m_rating[i]["score"];
-      tries = m_rating[i]["tries"];
-      m_rating[i]["tries"] = tries + 1;
-      penalty = m_rating[i]["shtraf"];
-      m_rating[i]["shtraf"] = penalty + 1;
+      rating.score = m_rating[i]["score"];
+      rating.attack = m_rating[i]["attack"];
+      rating.tries = m_rating[i]["tries"];
+      rating.penalty = m_rating[i]["penalty"];
+
+      rating.score -= 1;
+      rating.tries += 1;
+      rating.penalty += 1;
+
+      m_rating[i]["score"] = rating.score;
+      m_rating[i]["tries"] = rating.tries;
+      m_rating[i]["penalty"] = rating.penalty;
+      m_rating[i]["updated"] = WsjcppCore::getCurrentTimeInMilliseconds();
       break;
     }
   }
   auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
-  dbUsers->updateUserRatings(
-    name,
-    score,
-    attack,
-    penalty,
-    tries
-  );
+  dbUsers->updateUserRatings(name, rating);
 }
