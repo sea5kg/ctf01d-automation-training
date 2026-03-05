@@ -31,6 +31,7 @@ list (APPEND WSJCPP_SOURCES "./src/database/db_user_tries.cpp")
 # employees
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_config.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_database.cpp")
+list (APPEND WSJCPP_SOURCES "./src/employees/employ_flags.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_uuids.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_users.cpp")
 
