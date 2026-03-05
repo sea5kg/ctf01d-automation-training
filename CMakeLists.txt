@@ -72,6 +72,11 @@ list (APPEND WSJCPP_LIBRARIES sqlite3-static)
 message(STATUS "sqlite3 includes dir: ${PROJECT_SOURCE_DIR}/src/3rdparty/sqlite3/src")
 list (APPEND WSJCPP_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src/3rdparty/sqlite3/src")
 
+add_subdirectory(src/modules/employ-runner)
+list (APPEND WSJCPP_LIBRARIES employ-runner-static)
+message(STATUS "employ-runner includes dir: ${PROJECT_SOURCE_DIR}/src/modules/employ-runner/src")
+list (APPEND WSJCPP_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src/modules/employ-runner/src")
+
 include_directories(${WSJCPP_INCLUDE_DIRS})
 
 add_executable (ctf01d-automation-training ${WSJCPP_SOURCES})

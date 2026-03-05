@@ -25,6 +25,7 @@
 
 #include <wsjcpp_core.h>
 #include <employ_config.h>
+#include <employ_runner.h>
 #include "web_server.h"
 #include "WebSocketServer.h"  // libhv
 
@@ -51,6 +52,8 @@ public:
     WsjcppLog::throw_err(tag, message);
   }
 };
+
+REGISTRY_WSJCPP_EMPLOY(EmployRunner)
 
 int main(int argc, const char* argv[]) {
     WsjcppCore::initRandom();
