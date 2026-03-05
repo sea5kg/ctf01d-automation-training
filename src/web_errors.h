@@ -214,8 +214,14 @@ static const ctf01d::ErrorInfo ERR_10037_TRRAINING_ALREDE_ENDED(
 
 static const ctf01d::ErrorInfo ERR_10038_YOU_ALREADY_TRIED_THIS_FLAG(
   10038,
-  "You've already tried to hand in this flag '$flag$'. A fine has been issued.",
+  "You've already tried to hand in this flag '$flag$'. A penalty has been issued.",
   "Вы уже пытались сдать этот флаг '$flag$'. Наложен штраф.",
   ""
 );
 
+static const ctf01d::ErrorInfo ERR_10039_FLAG_HAS_WRONG_FORMAT(
+  10039,
+  "Flag has wrong format '$flag$'.",
+  "Флаг имеет неправильный формат '$flag$'.",
+  ""
+);

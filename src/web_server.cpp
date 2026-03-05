@@ -253,20 +253,21 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   // validate token
 
   std::string token = req["params"]["token"];
+  token = WsjcppCore::trim(token);
 
   if (token.length() < 3) {
-    // TODO failed requests
     return context->error400(ERR_10032_TOKEN_TOO_SHORT.replace("$token$", token));
   }
 
   if (token.length() > 10) {
-    // TODO failed requests
     return context->error400(ERR_10033_TOKEN_TOO_LONG.replace("$token$", token));
   }
 
   // validate flag
 
   std::string flag = req["params"]["flag"];
+  flag = WsjcppCore::trim(flag);
+  flag = WsjcppCore::toLower(flag);
 
   if (flag.length() < 3) {
     // TODO failed requests
@@ -293,83 +294,17 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   m_db->dbUserTries()->addUserFlag(username, flag, 0); // TODO if flag success -> 1
   m_users->updateUserTries(username);
 
-  // auto now = std::chrono::system_clock::now().time_since_epoch();
-  // int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
-  // std::string sRequestIP = req->client_addr.ip;
-  // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
-
-
-  // if (m_config->gameHasCoffeeBreak()
-  //   && nCurrentTimeSec > m_config->gameCoffeeBreakStartUTCInSec()
-  //   && nCurrentTimeSec < m_config->gameCoffeeBreakEndUTCInSec()
-  // ) {
-  //   static const std::string sErrorMsg = "Error(-8): Game on coffeebreak now";
-  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 400;
-  // }
-
-  // if (nCurrentTimeSec > m_config->gameEndUTCInSec()) {
-  //   static const std::string sErrorMsg = "Error(-9): Game already ended";
-  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 400;
-  // }
-
-  // std::string sTeamId = req->GetParam("teamid");
-  // sTeamId = WsjcppCore::trim(sTeamId);
-  // sTeamId = WsjcppCore::toLower(sTeamId);
-  // std::string sFlag = req->GetParam("flag");
-  // sFlag = WsjcppCore::trim(sFlag);
-  // sFlag = WsjcppCore::toLower(sFlag);
-
-  // if (sTeamId == "") {
-  //   static const std::string sErrorMsg = "Error(-10): Not found get-parameter 'teamid' or parameter is empty";
-  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 400;
-  // }
-
-  // if (sFlag == "") {
-  //   static const std::string sErrorMsg = "Error(-11): Not found get-parameter 'flag' or parameter is empty";
-  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 400;
-  // }
-
-  // // TODO optimize
-  // bool bTeamFound = false;
-  // for (unsigned int iteam = 0; iteam < m_config->teamsConf().size(); iteam++) {
-  //   Ctf01dTeamDef teamConf = m_config->teamsConf()[iteam];
-  //   if (teamConf.getId() == sTeamId) {
-  //       bTeamFound = true;
-  //   }
-  // }
-
-  // if (!bTeamFound) {
-  //   static const std::string sErrorMsg = "Error(-130): this is team not found";
-  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 400;
-  // }
-
-  // const static std::regex reFlagFormat("c01d[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}[0-9]{8,8}");
-  // if (!std::regex_match(sFlag, reFlagFormat)) {
-  //   static const std::string sErrorMsg = "Error(-140): flag has wrong format";
-  //   WsjcppLog::err(TAG, sErrorMsg + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 400;
-  // }
-  // m_config->scoreboard()->incrementTries(sTeamId);
+  const static std::regex reFlagFormat("c01d[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}[0-9]{8,8}");
+  if (!std::regex_match(flag, reFlagFormat)) {
+    return context->error400(ERR_10039_FLAG_HAS_WRONG_FORMAT.replace("$flag$", flag));
+  }
 
   // m_pEmployDatabase->insertFlagAttempt(sTeamId, sFlag, sRequestIP);
-
-  // // TODO m_pEmployFlags->insertFlagAttempt(sTeamId, sFlag);
 
   // Ctf01dFlag flag;
   // if (!m_config->scoreboard()->findFlagLive(sFlag, flag)) {
   //   static const std::string sErrorMsg = "Error(-150): flag is too old or flag never existed or flag alredy stole.";
-  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
+  //   WsjcppLog::err(TAG, sErrorMsg + ". Received flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
   //   resp->String(sErrorMsg);
   //   return 403;
   // }
