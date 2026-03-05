@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <employ_database.h>
 
-REGISTRY_WJSCPP_SERVICE_LOCATOR(EmployUuids)
+REGISTRY_WSJCPP_EMPLOY(EmployUuids)
 
 EmployUuids::EmployUuids()
   : WsjcppEmployBase({EmployUuids::name()}, {EmployDatabase::name()}) {

@@ -28,12 +28,37 @@
 #include "web_server.h"
 #include "WebSocketServer.h"  // libhv
 
+// logger
+class EmployeesLogger : public IWsjcppEmployeesLogger {
+public:
+  virtual void info(const std::string &tag, const std::string &message) override {
+    WsjcppLog::info(tag, message);
+  }
+
+  virtual void ok(const std::string &tag, const std::string &message) override {
+    WsjcppLog::ok(tag, message);
+  }
+
+  virtual void warn(const std::string &tag, const std::string &message) override {
+    WsjcppLog::warn(tag, message);
+  }
+
+  virtual void err(const std::string &tag, const std::string &message) override {
+    WsjcppLog::err(tag, message);
+  }
+
+  virtual void throw_err(const std::string &tag, const std::string &message) override {
+    WsjcppLog::throw_err(tag, message);
+  }
+};
+
 int main(int argc, const char* argv[]) {
     WsjcppCore::initRandom();
     WsjcppLog::setEnableLogFile(false);
+    WsjcppEmployees::setLogger(new EmployeesLogger());
 
-    WsjcppEmployeesInit empls({}, false);
-    if (!empls.inited) {
+    WsjcppEmployeesInit employees({}, false);
+    if (!employees.initialized) {
         return -1;
     }
 

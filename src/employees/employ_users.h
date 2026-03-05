@@ -36,7 +36,7 @@ class EmployUsers : public WsjcppEmployBase {
 public:
   EmployUsers();
   static std::string name() { return "EmployUsers"; }
-  virtual bool init(const std::string &sName, bool bSilent);
+  virtual bool init(const std::string &sName, bool bSilent) override;
   virtual bool deinit(const std::string &sName, bool bSilent) override;
 
   bool createUser(const std::string &name, std::string &secret_token, std::shared_ptr<ctf01d::ErrorInfo> &error);

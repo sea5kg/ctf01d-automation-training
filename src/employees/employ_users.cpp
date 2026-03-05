@@ -30,7 +30,7 @@
 #include "employ_database.h"
 #include "employ_uuids.h"
 
-REGISTRY_WJSCPP_SERVICE_LOCATOR(EmployUsers)
+REGISTRY_WSJCPP_EMPLOY(EmployUsers)
 
 EmployUsers::EmployUsers()
   : WsjcppEmployBase({EmployUsers::name()}, {EmployDatabase::name(), EmployUuids::name()}) {

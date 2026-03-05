@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <wsjcpp_core.h>
 #include <wsjcpp_employees.h>
 #include <mutex>
 #include "db_uuids.h"
@@ -35,8 +36,8 @@ class EmployDatabase : public WsjcppEmployBase {
 public:
   EmployDatabase();
   static std::string name() { return "EmployDatabase"; }
-  virtual bool init(const std::string &sName, bool bSilent);
-  virtual bool deinit(const std::string &sName, bool bSilent);
+  virtual bool init(const std::string &sName, bool bSilent) override;
+  virtual bool deinit(const std::string &sName, bool bSilent) override;
 
   std::shared_ptr<DbUuids> dbUuids();
   std::shared_ptr<DbUsers> dbUsers();

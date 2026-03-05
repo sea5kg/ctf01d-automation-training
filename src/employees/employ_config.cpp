@@ -42,7 +42,7 @@
 // ---------------------------------------------------------------------
 // EmployConfig
 
-REGISTRY_WJSCPP_SERVICE_LOCATOR(EmployConfig)
+REGISTRY_WSJCPP_EMPLOY(EmployConfig)
 
 EmployConfig::EmployConfig()
 : WsjcppEmployBase({EmployConfig::name()}, {}) {

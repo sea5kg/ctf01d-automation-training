@@ -30,7 +30,7 @@
 // ---------------------------------------------------------------------
 // EmployDatabase
 
-REGISTRY_WJSCPP_SERVICE_LOCATOR(EmployDatabase)
+REGISTRY_WSJCPP_EMPLOY(EmployDatabase)
 
 EmployDatabase::EmployDatabase() : WsjcppEmployBase({EmployDatabase::name()}, {EmployConfig::name()}) {
   TAG = EmployDatabase::name();
