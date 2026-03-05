@@ -45,8 +45,8 @@
 REGISTRY_WSJCPP_EMPLOY(EmployConfig)
 
 EmployConfig::EmployConfig()
-: WsjcppEmployBase({EmployConfig::name()}, {}) {
-  TAG = EmployConfig::name();
+: WsjcppEmployBase({IEmployConfig::name()}, {}) {
+  TAG = IEmployConfig::name();
 }
 
 EmployConfig::~EmployConfig() {

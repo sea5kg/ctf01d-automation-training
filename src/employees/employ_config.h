@@ -25,25 +25,27 @@
 
 #pragma once
 
+#include "iemploy_config.h"
+
 #include <wsjcpp_employees.h>
 #include <wsjcpp_yaml.h>
 
-class EmployConfig : public WsjcppEmployBase {
+class EmployConfig : public WsjcppEmployBase, public IEmployConfig {
 public:
   EmployConfig();
   ~EmployConfig();
-  static std::string name() { return "EmployConfig"; }
+
   virtual bool init(const std::string &sName, bool bSilent) override;
   virtual bool deinit(const std::string &sName, bool bSilent) override;
 
-  const std::string &getWorkDir();
-  int getWebPort();
-  const std::string &getDatabaseDir();
-  const std::string &getLogDir();
-  const std::string &getWebDir();
+  virtual const std::string &getWorkDir() override;
+  virtual int getWebPort() override;
+  virtual const std::string &getDatabaseDir() override;
+  virtual const std::string &getLogDir() override;
+  virtual const std::string &getWebDir() override;
 
-  int startTimeTraining();
-  int endTimeTraining();
+  virtual int startTimeTraining() override;
+  virtual int endTimeTraining() override;
 
   // TODO
   void doExtractFilesIfNotExists();

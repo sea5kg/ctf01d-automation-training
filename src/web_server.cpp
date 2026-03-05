@@ -53,7 +53,7 @@ int Ctf01dRequestResponse::response(int ret_http_code, const nlohmann::json &res
 
 WebServer::WebServer() {
   TAG = "WebServer";
-  m_config = findWsjcppEmploy<EmployConfig>();
+  m_config = findWsjcppEmploy<IEmployConfig>();
   m_users = findWsjcppEmploy<EmployUsers>();
   m_db = findWsjcppEmploy<EmployDatabase>();
 

@@ -24,7 +24,7 @@
 // https://github.com/sea5kg/ctf01d-automation-training-automation-training
 
 #include "employ_database.h"
-#include "employ_config.h"
+#include "iemploy_config.h"
 #include <sqlite3.h>
 
 // ---------------------------------------------------------------------
@@ -32,7 +32,7 @@
 
 REGISTRY_WSJCPP_EMPLOY(EmployDatabase)
 
-EmployDatabase::EmployDatabase() : WsjcppEmployBase({EmployDatabase::name()}, {EmployConfig::name()}) {
+EmployDatabase::EmployDatabase() : WsjcppEmployBase({EmployDatabase::name()}, {IEmployConfig::name()}) {
   TAG = EmployDatabase::name();
 }
 

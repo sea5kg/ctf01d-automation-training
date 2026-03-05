@@ -33,7 +33,7 @@
  ***********************************************************************************/
  
 #include "employ_flags.h"
-#include <employ_config.h>
+#include "iemploy_config.h"
 #include <wsjcpp_core.h>
 #include <fstream>
 #include <cstring>
@@ -208,7 +208,7 @@ void Ctf01dFlag::copyFrom(const Ctf01dFlag &flag) {
 REGISTRY_WSJCPP_EMPLOY(EmployFlags)
 
 EmployFlags::EmployFlags()
-: WsjcppEmployBase({EmployFlags::name()}, { EmployConfig::name() }) {
+: WsjcppEmployBase({EmployFlags::name()}, { IEmployConfig::name() }) {
     TAG = EmployFlags::name();
 }
 

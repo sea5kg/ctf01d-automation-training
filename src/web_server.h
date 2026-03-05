@@ -33,7 +33,7 @@
 #include <json.hpp>
 #include <memory>
 #include "HttpService.h"
-#include <employ_config.h>
+#include <iemploy_config.h>
 #include <employ_users.h>
 #include <employ_database.h>
 
@@ -61,7 +61,7 @@ private:
 
   std::string TAG;
   hv::HttpService *m_pHttpService;
-  EmployConfig *m_config;
+  IEmployConfig *m_config;
   EmployDatabase *m_db;
   EmployUsers *m_users;
 

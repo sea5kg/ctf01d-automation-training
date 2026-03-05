@@ -15,6 +15,8 @@ find_package(Threads REQUIRED)
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/../../../src.wsjcpp/wsjcpp_employees
+    ${PROJECT_SOURCE_DIR}/../../../src.wsjcpp/wsjcpp_core
+    ${PROJECT_SOURCE_DIR}/../../../include
 )
 
 set(SRC_LIB_FILE ${PROJECT_SOURCE_DIR}/src/employ_runner.cpp)

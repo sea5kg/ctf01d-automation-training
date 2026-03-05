@@ -14,6 +14,7 @@ set(EXECUTABLE_OUTPUT_PATH ${ctf01d-automation-training_SOURCE_DIR})
 # Sources
 
 # include header dirs
+list (APPEND WSJCPP_INCLUDE_DIRS "include")
 list (APPEND WSJCPP_INCLUDE_DIRS "src")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/employees")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/database")

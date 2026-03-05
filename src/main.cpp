@@ -24,7 +24,6 @@
 // https://github.com/sea5kg/ctf01d-automation-training-automation-training
 
 #include <wsjcpp_core.h>
-#include <employ_config.h>
 #include <employ_runner.h>
 #include "web_server.h"
 #include "WebSocketServer.h"  // libhv
@@ -65,7 +64,7 @@ int main(int argc, const char* argv[]) {
         return -1;
     }
 
-    EmployConfig *pConfig = findWsjcppEmploy<EmployConfig>();
+    IEmployConfig *pConfig = findWsjcppEmploy<IEmployConfig>();
 
     WsjcppLog::info("main", "Start web server on http://localhost:" + std::to_string(pConfig->getWebPort()));
     WebServer httpServer;

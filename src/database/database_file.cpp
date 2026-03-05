@@ -22,8 +22,8 @@
 */
 
 #include "database_file.h"
-
-#include "employ_config.h"
+#include <iemploy_config.h>
+#include <wsjcpp_employees.h>
 #include <wsjcpp_core.h>
 #include <algorithm>
 #include <sqlite3.h>
@@ -87,7 +87,7 @@ DatabaseFile::DatabaseFile(const std::string &sFilename) {
   m_pDatabaseFile = nullptr;
   m_sFilename = sFilename;
   m_nLastBackupTime = 0;
-  EmployConfig *pConfig = findWsjcppEmploy<EmployConfig>();
+  IEmployConfig *pConfig = findWsjcppEmploy<IEmployConfig>();
   std::string sDatabaseDir = pConfig->getDatabaseDir();
   m_sFileFullpath = sDatabaseDir + "/" + m_sFilename;
 
