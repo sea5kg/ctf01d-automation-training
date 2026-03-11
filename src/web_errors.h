@@ -225,3 +225,17 @@ static const ctf01d::ErrorInfo ERR_10039_FLAG_HAS_WRONG_FORMAT(
   "Флаг имеет неправильный формат '$flag$'.",
   ""
 );
+
+static const ctf01d::ErrorInfo ERR_10040_FLAG_TOO_OLD_OR_NEVER_EXISTS(
+  10040,
+  "Flag is too old or flag never exists '$flag$'.",
+  "Флаг слишком стар или никогда не существовал '$flag$'.",
+  ""
+);
+
+static const ctf01d::ErrorInfo ERR_10041_FLAG_TOO_OLD(
+  10041,
+  "Flag is too old '$flag$'.",
+  "Флаг слишком стар '$flag$'.",
+  ""
+);

@@ -31,7 +31,7 @@
  * SOFTWARE.
  *
  ***********************************************************************************/
- 
+
 #include "employ_flags.h"
 #include "iemploy_config.h"
 #include <wsjcpp_core.h>
@@ -45,8 +45,6 @@ Ctf01dFlag::Ctf01dFlag() {
     m_sId = "qweRT12345";
     // flag format
     m_sValue = "c01d0000-0000-0000-0000-000000000000";
-    m_sTeamId = "";
-    m_sServiceId = "";
     m_nTimeStartInMs = 0;
     m_nTimeEndInMs = 0;
 }
@@ -62,8 +60,6 @@ void Ctf01dFlag::generateRandomFlag(int nTimeFlagLifeInMin, const std::string &s
 
     generateId();
     generateValue(nGameStartUTCInSec);
-    m_sTeamId = sTeamId;
-    m_sServiceId = sServiceId;
 }
 
 // ---------------------------------------------------------------------
@@ -145,30 +141,6 @@ std::string Ctf01dFlag::getValue() const {
 
 // ---------------------------------------------------------------------
 
-void Ctf01dFlag::setTeamId(const std::string &sTeamId) {
-    m_sTeamId = sTeamId;
-}
-
-// ---------------------------------------------------------------------
-
-const std::string &Ctf01dFlag::getTeamId() const {
-    return m_sTeamId;
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::setServiceId(const std::string &sServiceId) {
-    m_sServiceId = sServiceId;
-}
-
-// ---------------------------------------------------------------------
-
-const std::string &Ctf01dFlag::getServiceId() const {
-    return m_sServiceId;
-}
-
-// ---------------------------------------------------------------------
-
 void Ctf01dFlag::setTimeStartInMs(long nTimeStartInMs) {
     m_nTimeStartInMs = nTimeStartInMs;
 }
@@ -196,8 +168,6 @@ long Ctf01dFlag::getTimeEndInMs() const {
 void Ctf01dFlag::copyFrom(const Ctf01dFlag &flag) {
     this->setId(flag.getId());
     this->setValue(flag.getValue());
-    this->setServiceId(flag.getServiceId());
-    this->setTeamId(flag.getTeamId());
     this->setTimeStartInMs(flag.getTimeStartInMs());
     this->setTimeEndInMs(flag.getTimeEndInMs());
 }
@@ -222,4 +192,6 @@ bool EmployFlags::deinit(const std::string &sName, bool bSilent) {
     return true;
 }
 
-
+bool EmployFlags::findFlagLive(const std::string &flagValue, Ctf01dFlag &flag) {
+    return false;
+}

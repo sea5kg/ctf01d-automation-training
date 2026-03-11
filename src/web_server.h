@@ -35,6 +35,7 @@
 #include "HttpService.h"
 #include <iemploy_config.h>
 #include <employ_users.h>
+#include <employ_flags.h>
 #include <employ_database.h>
 
 class Ctf01dRequestResponse : public ctf01d::HandleContext {
@@ -64,6 +65,7 @@ private:
   IEmployConfig *m_config;
   EmployDatabase *m_db;
   EmployUsers *m_users;
+  EmployFlags *m_flags;
 
   std::string m_sHtmlFolder;
   std::map<std::string, std::shared_ptr<ctf01d::RequestHandler>> m_handlers;

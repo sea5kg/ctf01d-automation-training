@@ -55,6 +55,7 @@ WebServer::WebServer() {
   TAG = "WebServer";
   m_config = findWsjcppEmploy<IEmployConfig>();
   m_users = findWsjcppEmploy<EmployUsers>();
+  m_flags = findWsjcppEmploy<EmployFlags>();
   m_db = findWsjcppEmploy<EmployDatabase>();
 
   {
@@ -224,7 +225,8 @@ int WebServer::signup(std::shared_ptr<ctf01d::HandleContext> context) {
 
 int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   auto now = std::chrono::system_clock::now().time_since_epoch();
-  int nCurrentTimeSec = std::chrono::duration_cast<std::chrono::seconds>(now).count();
+  long nCurrentTimeMSec = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+  int nCurrentTimeSec = nCurrentTimeMSec / 1000;
   // std::string sRequestIP = req->client_addr.ip;
   // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
 
@@ -265,18 +267,18 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
 
   // validate flag
 
-  std::string flag = req["params"]["flag"];
-  flag = WsjcppCore::trim(flag);
-  flag = WsjcppCore::toLower(flag);
+  std::string flagValue = req["params"]["flag"];
+  flagValue = WsjcppCore::trim(flagValue);
+  flagValue = WsjcppCore::toLower(flagValue);
 
-  if (flag.length() < 3) {
+  if (flagValue.length() < 3) {
     // TODO failed requests
-    return context->error400(ERR_10034_FLAG_TOO_SHORT.replace("$flag$", flag));
+    return context->error400(ERR_10034_FLAG_TOO_SHORT.replace("$flag$", flagValue));
   }
 
-  if (flag.length() > 36) {
+  if (flagValue.length() > 36) {
     // TODO failed requests
-    return context->error400(ERR_10035_FLAG_TOO_LONG.replace("$flag$", flag));
+    return context->error400(ERR_10035_FLAG_TOO_LONG.replace("$flag$", flagValue));
   }
 
   std::string username = m_users->findUserByToken(token);
@@ -285,53 +287,28 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
     return context->error404(ERR_10025_USERNAME_BY_TOKEN_NOT_FOUND.replace("$token$", token));
   }
 
-  if (m_db->dbUserTries()->findUserFlag(username, flag)) {
-    m_db->dbUserTries()->addUserFlag(username, flag, -1);
+  if (m_db->dbUserTries()->findUserFlag(username, flagValue)) {
+    m_db->dbUserTries()->addUserFlag(username, flagValue, -1);
     m_users->updateUserPenaltyAndTries(username);
-    return context->error400(ERR_10038_YOU_ALREADY_TRIED_THIS_FLAG.replace("$flag$", flag));
+    return context->error400(ERR_10038_YOU_ALREADY_TRIED_THIS_FLAG.replace("$flag$", flagValue));
   }
 
-  m_db->dbUserTries()->addUserFlag(username, flag, 0); // TODO if flag success -> 1
+  m_db->dbUserTries()->addUserFlag(username, flagValue, 0); // TODO if flag success -> 1
   m_users->updateUserTries(username);
 
   const static std::regex reFlagFormat("c01d[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}-[a-f0-9]{4,4}[0-9]{8,8}");
-  if (!std::regex_match(flag, reFlagFormat)) {
-    return context->error400(ERR_10039_FLAG_HAS_WRONG_FORMAT.replace("$flag$", flag));
+  if (!std::regex_match(flagValue, reFlagFormat)) {
+    return context->error400(ERR_10039_FLAG_HAS_WRONG_FORMAT.replace("$flag$", flagValue));
   }
 
-  // m_pEmployDatabase->insertFlagAttempt(sTeamId, sFlag, sRequestIP);
+  Ctf01dFlag flag;
+  if (!m_flags->findFlagLive(flagValue, flag)) {
+    return context->error400(ERR_10040_FLAG_TOO_OLD_OR_NEVER_EXISTS.replace("$flag$", flagValue));
+  }
 
-  // Ctf01dFlag flag;
-  // if (!m_config->scoreboard()->findFlagLive(sFlag, flag)) {
-  //   static const std::string sErrorMsg = "Error(-150): flag is too old or flag never existed or flag alredy stole.";
-  //   WsjcppLog::err(TAG, sErrorMsg + ". Received flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 403;
-  // }
-
-  // long nCurrentTimeMSec = (long)nCurrentTimeSec;
-  // nCurrentTimeMSec = nCurrentTimeMSec*1000;
-
-  // if (flag.getTimeEndInMs() < nCurrentTimeMSec) {
-  //   // TODO
-  //   static const std::string sErrorMsg = "Error(-151): flag is too old";
-  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 403;
-  // }
-
-  // // if (flag.teamStole() == sTeamId) {
-  // //     response.forbidden().sendText("Error(-160): flag already stole by your team");
-  // //     WsjcppLog::err(TAG, "Error(-160): Recieved flag {" + sFlag + "} from {" + sTeamId + "} (flag already stole by your team)");
-  // //     return true;
-  // // }
-
-  // if (flag.getTeamId() == sTeamId) {
-  //   static const std::string sErrorMsg = "Error(-180): this is your flag";
-  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 403;
-  // }
+  if (flag.getTimeEndInMs() < nCurrentTimeMSec) {
+    return context->error400(ERR_10041_FLAG_TOO_OLD.replace("$flag$", flagValue));
+  }
 
   // std::string sServiceStatus = m_config->scoreboard()->serviceStatus(sTeamId, flag.getServiceId());
 
