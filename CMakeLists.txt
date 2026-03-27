@@ -33,6 +33,7 @@ list (APPEND WSJCPP_SOURCES "./src/database/db_user_tries.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_config.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_database.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_flags.cpp")
+list (APPEND WSJCPP_SOURCES "./src/employees/employ_runner.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_uuids.cpp")
 list (APPEND WSJCPP_SOURCES "./src/employees/employ_users.cpp")
 
@@ -73,10 +74,10 @@ list (APPEND WSJCPP_LIBRARIES sqlite3-static)
 message(STATUS "sqlite3 includes dir: ${PROJECT_SOURCE_DIR}/src/3rdparty/sqlite3/src")
 list (APPEND WSJCPP_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src/3rdparty/sqlite3/src")
 
-add_subdirectory(src/modules/employ-runner)
-list (APPEND WSJCPP_LIBRARIES employ-runner-static)
-message(STATUS "employ-runner includes dir: ${PROJECT_SOURCE_DIR}/src/modules/employ-runner/src")
-list (APPEND WSJCPP_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src/modules/employ-runner/src")
+# add_subdirectory(src/modules/employ-runner)
+# list (APPEND WSJCPP_LIBRARIES employ-runner-static)
+# message(STATUS "employ-runner includes dir: ${PROJECT_SOURCE_DIR}/src/modules/employ-runner/src")
+# list (APPEND WSJCPP_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src/modules/employ-runner/src")
 
 include_directories(${WSJCPP_INCLUDE_DIRS})
 
