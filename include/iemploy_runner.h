@@ -25,21 +25,19 @@
 
 #pragma once
 
-#include "iemploy_runner.h"
-
-#include <wsjcpp_employees.h>
 #include <string>
-#include <mutex>
-#include <fstream>
+#include <vector>
 
-class EmployRunner : public WsjcppEmployBase, public IEmployRunner {
-    public:
-        EmployRunner();
-        virtual bool init(const std::string &sName, bool bSilent) override;
-        virtual bool deinit(const std::string &sName, bool bSilent) override;
+struct CommandContext {
+    std::string work_dir;
+    std::string app_name;
+    std::vector<std::string> args;
+    int timeout_ms; // infinity
+};
 
-        virtual void runCommand(CommandContext &ctx) override;
+class IEmployRunner {
+public:
+  static std::string name() { return "IEmployRunner"; }
 
-    private:
-        std::string TAG;
+  virtual void runCommand(CommandContext &ctx) = 0;
 };
