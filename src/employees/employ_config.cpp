@@ -56,7 +56,7 @@ EmployConfig::~EmployConfig() {
 bool EmployConfig::init(const std::string &sName, bool bSilent) {
   std::vector<std::string> vPossibleFolders;
   std::string sWorkDirFromEnv = "";
-  tryLoadFromEnv("WORKDIR", sWorkDirFromEnv, "Work Directory from enviroment");
+  tryLoadFromEnv("WORKDIR", sWorkDirFromEnv, "Work Directory from environment");
   if (sWorkDirFromEnv != "") {
     vPossibleFolders.push_back(sWorkDirFromEnv);
   }
@@ -102,6 +102,14 @@ bool EmployConfig::init(const std::string &sName, bool bSilent) {
     return false;
   }
 
+  if (!readFlagConfig(sConfigFile, yamlConfig)) {
+    return false;
+  }
+
+  // if (!readCheckerConfig(sConfigFile, yamlConfig)) {
+  //   return false;
+  // }
+
   m_sDatabaseDir = handleRelatedDirPath(yamlConfig["database-dir"].valStr(), "/dbs");
   if (!WsjcppCore::dirExists(m_sDatabaseDir)) {
     WsjcppCore::makeDir(m_sDatabaseDir);
@@ -116,6 +124,12 @@ bool EmployConfig::init(const std::string &sName, bool bSilent) {
     WsjcppLog::err(TAG, "Error: Folder '" + m_sWebDir + "' does not exists and could not created, please check access rights to parent folder.");
     return false;
   }
+
+  // flag-lifetime-in-min
+  // checker-type: local-script
+  // checker-target-service-host: localhost
+  // checker-workdir: ./checker
+  // checker-script: ./example_checker.py
 
   // TODO
   // this->doExtractFilesIfNotExists();
@@ -148,14 +162,17 @@ const std::string &EmployConfig::getWebDir() {
   return m_sWebDir;
 }
 
-int EmployConfig::startTimeTraining() {
-  return m_startTimeTraining;
+int EmployConfig::startTimeTrainingInSec() {
+  return m_start_time_training_in_sec;
 }
 
-int EmployConfig::endTimeTraining() {
+int EmployConfig::endTimeTrainingInSec() {
   return m_endTimeTraining;
 }
 
+int EmployConfig::flagLifeTimeInMin() {
+  return m_flag_lifetime_in_min;
+}
 
 void EmployConfig::doExtractFilesIfNotExists() {
   // TODO
@@ -298,15 +315,15 @@ bool EmployConfig::initLogging(WsjcppYaml &yamlConfig) {
 
 bool EmployConfig::readTimesTraining(const std::string &configFilepath, WsjcppYaml &yamlConfig) {
 
-  // start time training need for include timn to flag info
+  // start time training need for include time to flag info
   if (yamlConfig["start-time-training"].isNull()) {
     WsjcppLog::warn(TAG, "Missing start-time-training. Will be created.");
-    m_startTimeTraining = WsjcppCore::getCurrentTimeInSeconds();
+    m_start_time_training_in_sec = WsjcppCore::getCurrentTimeInSeconds();
     createParamConfigDatetime(
       yamlConfig,
       "start-time-training",
-      m_startTimeTraining,
-      "start time (will be automaticly added after first run - you can remove this and run again)"
+      m_start_time_training_in_sec,
+      "start time (will be automatically added after first run - you can remove this and run again)"
     );
     std::string sError;
     if (!yamlConfig.saveToFile(configFilepath, sError)) {
@@ -315,19 +332,19 @@ bool EmployConfig::readTimesTraining(const std::string &configFilepath, WsjcppYa
   } else {
     std::string sStartTimeTraining = yamlConfig["start-time-training"].valStr();
     WsjcppLog::info(TAG, "start-time-training: " + sStartTimeTraining);
-    m_startTimeTraining = formatedDateTimeToSeconds(sStartTimeTraining);
+    m_start_time_training_in_sec = formattedDateTimeToSeconds(sStartTimeTraining);
   }
-  WsjcppLog::info(TAG, "start-time-training: " + std::to_string(m_startTimeTraining));
+  WsjcppLog::info(TAG, "start-time-training: " + std::to_string(m_start_time_training_in_sec));
 
-  // end time training need for include timn to flag info
+  // end time training need for include time to flag info
   if (yamlConfig["end-time-training"].isNull()) {
     WsjcppLog::warn(TAG, "Missing end-time-training. Will be created.");
-    m_endTimeTraining = m_startTimeTraining + 60*60*24*7; // one week after start training
+    m_endTimeTraining = m_start_time_training_in_sec + 60*60*24*7; // one week after start training
     createParamConfigDatetime(
       yamlConfig,
       "end-time-training",
       m_endTimeTraining,
-      "end time (will be automaticly added after first run - you can remove this and run again)"
+      "end time (will be automatically added after first run - you can remove this and run again)"
     );
     std::string sError;
     if (!yamlConfig.saveToFile(configFilepath, sError)) {
@@ -336,21 +353,32 @@ bool EmployConfig::readTimesTraining(const std::string &configFilepath, WsjcppYa
   } else {
     std::string sEndTimeTraining = yamlConfig["end-time-training"].valStr();
     WsjcppLog::info(TAG, "end-time-training: " + sEndTimeTraining);
-    m_endTimeTraining = formatedDateTimeToSeconds(sEndTimeTraining);
+    m_endTimeTraining = formattedDateTimeToSeconds(sEndTimeTraining);
   }
   WsjcppLog::info(TAG, "end-time-training: " + std::to_string(m_endTimeTraining));
 
   return true;
 }
 
-std::string EmployConfig::secondsToFormatedDateTime(int seconds) {
+bool EmployConfig::readFlagConfig(const std::string &configFilepath, WsjcppYaml &yamlConfig) {
+  // start time training need for include time to flag info
+  if (yamlConfig["flag-lifetime-in-min"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'flag-lifetime-in-min'. " + configFilepath);
+    return false;
+  }
+  m_flag_lifetime_in_min = yamlConfig["flag-lifetime-in-min"].valInt();
+  return true;
+}
+
+
+std::string EmployConfig::secondsToFormattedDateTime(int seconds) {
   std::chrono::seconds ch_seconds(seconds);
   std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> tp({ch_seconds});
   std::string ret = date::format("%Y-%m-%d %H:%M:%S", tp);
   return ret;
 }
 
-int EmployConfig::formatedDateTimeToSeconds(const std::string &dt) {
+int EmployConfig::formattedDateTimeToSeconds(const std::string &dt) {
   std::istringstream in{dt.c_str()};
   date::sys_seconds tp;
   in >> date::parse("%Y-%m-%d %H:%M:%S", tp);
@@ -365,7 +393,7 @@ void EmployConfig::createParamConfigDatetime(
 ) {
   yamlConfig.getRoot()->setElementValue(
     name,
-    secondsToFormatedDateTime(value_seconds),
+    secondsToFormattedDateTime(value_seconds),
     WSJCPP_YAML_QUOTES_NONE,
     WSJCPP_YAML_QUOTES_DOUBLE
   );

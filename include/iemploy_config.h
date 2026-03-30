@@ -37,6 +37,7 @@ public:
   virtual const std::string &getLogDir() = 0;
   virtual const std::string &getWebDir() = 0;
 
-  virtual int startTimeTraining() = 0;
-  virtual int endTimeTraining() = 0;
+  virtual int startTimeTrainingInSec() = 0;
+  virtual int endTimeTrainingInSec() = 0;
+  virtual int flagLifeTimeInMin() = 0;
 };

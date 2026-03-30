@@ -9,3 +9,8 @@ database-dir: ./dbs
 start-time-training: "2026-03-02 03:13:46" # start time (will be automaticly added after first run - you can remove this and run again)
 end-time-training: "2028-03-09 03:13:46" # end time (will be automaticly added after first run - you can remove this and run again)
 
+flag-lifetime-in-min: 10 # you can change flag time live (in minutes)
+checker-type: local-script
+checker-target-service-host: localhost
+checker-workdir: ./checker
+checker-script: ./example_checker.py

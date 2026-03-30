@@ -44,8 +44,9 @@ public:
   virtual const std::string &getLogDir() override;
   virtual const std::string &getWebDir() override;
 
-  virtual int startTimeTraining() override;
-  virtual int endTimeTraining() override;
+  virtual int startTimeTrainingInSec() override;
+  virtual int endTimeTrainingInSec() override;
+  virtual int flagLifeTimeInMin() override;
 
   // TODO
   void doExtractFilesIfNotExists();
@@ -54,9 +55,10 @@ private:
   bool tryLoadFromEnv(const std::string &sEnvName, std::string &sValue, const std::string &sDescription);
   std::string handleRelatedDirPath(const std::string &sDir, const std::string &sDefault);
   bool initLogging(WsjcppYaml &yamlConfig);
-  bool readTimesTraining(const std::string &sConfigFile, WsjcppYaml &yamlConfig);
-  std::string secondsToFormatedDateTime(int seconds);
-  int formatedDateTimeToSeconds(const std::string &dt);
+  bool readTimesTraining(const std::string &configFilepath, WsjcppYaml &yamlConfig);
+  bool readFlagConfig(const std::string &configFilepath, WsjcppYaml &yamlConfig);
+  std::string secondsToFormattedDateTime(int seconds);
+  int formattedDateTimeToSeconds(const std::string &dt);
   void createParamConfigDatetime(WsjcppYaml &yamlConfig, const std::string &name, int value_seconds, const std::string &comment);
 
   std::string TAG;
@@ -64,7 +66,8 @@ private:
   std::string m_sLogDir;
   std::string m_sWebDir;
   int m_nWebPort;
-  int m_startTimeTraining;
+  int m_start_time_training_in_sec;
   int m_endTimeTraining;
   std::string m_sDatabaseDir;
+  int m_flag_lifetime_in_min = 1;
 };

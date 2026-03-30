@@ -230,12 +230,12 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
   // std::string sRequestIP = req->client_addr.ip;
   // std::string sRequestIP_MsgSuffex = " (" + sRequestIP + ")";
 
-  if (nCurrentTimeSec < m_config->startTimeTraining()) {
-    return context->error400(ERR_10036_TRRAINING_NOT_STARTED_YET);
+  if (nCurrentTimeSec < m_config->startTimeTrainingInSec()) {
+    return context->error400(ERR_10036_TRAINING_NOT_STARTED_YET);
   }
 
-  if (nCurrentTimeSec > m_config->endTimeTraining()) {
-    return context->error400(ERR_10037_TRRAINING_ALREDE_ENDED);
+  if (nCurrentTimeSec > m_config->endTimeTrainingInSec()) {
+    return context->error400(ERR_10037_TRAINING_ALREADY_ENDED);
   }
 
   const nlohmann::json req = context->requestBody();
