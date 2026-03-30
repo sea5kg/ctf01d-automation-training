@@ -63,7 +63,6 @@ int main(int argc, const char* argv[]) {
     if (!employees.initialized) {
         return -1;
     }
-
     auto *runner = findWsjcppEmploy<IEmployRunner>();
 
     CommandContext ctx;
@@ -76,6 +75,9 @@ int main(int argc, const char* argv[]) {
 
     runner->runCommand(ctx);
 
+    auto *flags = findWsjcppEmploy<IEmployFlags>();
+
+    flags->startThreadSendFlags();
 
     auto *pConfig = findWsjcppEmploy<IEmployConfig>();
 

@@ -174,7 +174,10 @@ void LocalCommandRunner::run() {
         }
         close(fd[0]);
         close(fd[1]);
-        chdir(m_sDir.c_str());
+        int res = chdir(m_sDir.c_str());
+        if (res != 0) {
+            printf("fork: FAILED change to work dir '%s'\n", m_sDir.c_str());
+        }
         printf("fork: Child process id=%d\n", getpid());
         printf("fork: Change dir '%s'\n", m_sDir.c_str());
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh

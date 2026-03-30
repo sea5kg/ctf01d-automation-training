@@ -1,42 +1,34 @@
-/**********************************************************************************
- *          Project
- *  _______ _________ _______  _______  __    ______
- * (  ____ \\__   __/(  ____ \(  __   )/  \  (  __  \
- * | (    \/   ) (   | (    \/| (  )  |\/) ) | (  \  )
- * | |         | |   | (__    | | /   |  | | | |   ) |
- * | |         | |   |  __)   | (/ /) |  | | | |   | |
- * | |         | |   | (      |   / | |  | | | |   ) |
- * | (____/\   | |   | )      |  (__) |__) (_| (__/  )
- * (_______/   )_(   |/       (_______)\____/(______/
- *
- * MIT License
- * Copyright (c) 2018-2025 Evgenii Sopov
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- ***********************************************************************************/
+/* MIT License
+
+* Copyright (c) 2015-2026 Evgenii Sopov
+
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*/
+
+// https://github.com/sea5kg/ctf01d-automation-training
 
 #include "employ_flags.h"
 #include "iemploy_config.h"
 #include <wsjcpp_core.h>
 #include <fstream>
 #include <cstring>
+#include <thread>
 
 // ---------------------------------------------------------------------
 // Ctf01dFlag
@@ -51,7 +43,7 @@ Ctf01dFlag::Ctf01dFlag() {
 
 // ---------------------------------------------------------------------
 
-void Ctf01dFlag::generateRandomFlag(int nTimeFlagLifeInMin, const std::string &sTeamId, const std::string &sServiceId, int nGameStartUTCInSec) {
+void Ctf01dFlag::generateRandomFlag(int nTimeFlagLifeInMin, int nGameStartUTCInSec) {
     // __int64
     long nTimeStartInMs = WsjcppCore::getCurrentTimeInMilliseconds();
     long nTimeEndInMs = nTimeStartInMs + nTimeFlagLifeInMin*60*1000;
@@ -178,8 +170,9 @@ void Ctf01dFlag::copyFrom(const Ctf01dFlag &flag) {
 REGISTRY_WSJCPP_EMPLOY(EmployFlags)
 
 EmployFlags::EmployFlags()
-: WsjcppEmployBase({EmployFlags::name()}, { IEmployConfig::name() }) {
+: WsjcppEmployBase({IEmployFlags::name()}, { IEmployConfig::name() }) {
     TAG = EmployFlags::name();
+    m_stop_thread = false;
 }
 
 bool EmployFlags::init(const std::string &sName, bool bSilent) {
@@ -194,4 +187,38 @@ bool EmployFlags::deinit(const std::string &sName, bool bSilent) {
 
 bool EmployFlags::findFlagLive(const std::string &flagValue, Ctf01dFlag &flag) {
     return false;
+}
+
+void* newProcessThread_Flags(void *arg) {
+	// Log::info("newRequest", "");
+	EmployFlags *m_flags = (EmployFlags *)arg;
+	pthread_detach(pthread_self());
+	m_flags->runThreadSendFlags();
+	return 0;
+}
+
+void EmployFlags::startThreadSendFlags() {
+    m_stop_thread = false;
+    pthread_create(&m_pProcessThread, NULL, &newProcessThread_Flags, (void *)this);
+}
+
+void EmployFlags::stopThreadSendFlags() {
+    m_stop_thread = true;
+}
+
+void EmployFlags::runThreadSendFlags() {
+    auto *config = findWsjcppEmploy<IEmployConfig>();
+
+    while (!m_stop_thread) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        Ctf01dFlag new_flag;
+
+        new_flag.generateRandomFlag(config->flagLifeTimeInMin(), config->startTimeTrainingInSec());
+
+        WsjcppLog::warn(TAG, "runThreadSendFlags - TODO: " + new_flag.getValue());
+
+        // std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
+        // TODO run script
+    }
 }

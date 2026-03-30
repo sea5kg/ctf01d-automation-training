@@ -36,47 +36,30 @@
 #define EMPLOY_FLAGS_H
 
 #include <wsjcpp_employees.h>
+#include "iemploy_flags.h"
 #include <string>
 #include <mutex>
 #include <fstream>
+#include <atomic>
 
-class Ctf01dFlag {
-    public:
-        Ctf01dFlag();
-        void generateRandomFlag(int nTimeFlagLifeInMin, const std::string &sTeamId, const std::string &sServiceId, int nGameStartUTCInSec);
-
-        void generateId();
-        void setId(const std::string &sId);
-        std::string getId() const;
-
-        void generateValue(int nGameStartUTCInSec);
-        void setValue(const std::string &sValue);
-        std::string getValue() const;
-
-        void setTimeStartInMs(long nTimeStart);
-        long getTimeStartInMs() const;
-
-        void setTimeEndInMs(long nTimeEnd);
-        long getTimeEndInMs() const;
-
-        void copyFrom(const Ctf01dFlag &flag);
-
-    private:
-        std::string m_sId;
-        std::string m_sValue;
-        long m_nTimeStartInMs;
-        long m_nTimeEndInMs;
-};
-
-class EmployFlags : public WsjcppEmployBase {
+class EmployFlags : public WsjcppEmployBase, public IEmployFlags {
     public:
         EmployFlags();
-        static std::string name() { return "EmployFlags"; }
         virtual bool init(const std::string &sName, bool bSilent) override;
         virtual bool deinit(const std::string &sName, bool bSilent) override;
-        bool findFlagLive(const std::string &flagValue, Ctf01dFlag &flag);
+
+        // IEmployFlags
+        virtual bool findFlagLive(const std::string &flagValue, Ctf01dFlag &flag) override;
+        virtual void startThreadSendFlags() override;
+        virtual void stopThreadSendFlags() override;
+
+        void runThreadSendFlags();
+
     private:
         std::string TAG;
+        pthread_t m_pProcessThread;
+        std::atomic_bool m_stop_thread = false;
+        std::mutex m_mutex_flag_lives;
 };
 
 #endif // EMPLOY_FLAGS_H
