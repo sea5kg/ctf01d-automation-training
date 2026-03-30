@@ -64,7 +64,20 @@ int main(int argc, const char* argv[]) {
         return -1;
     }
 
-    IEmployConfig *pConfig = findWsjcppEmploy<IEmployConfig>();
+    auto *runner = findWsjcppEmploy<IEmployRunner>();
+
+    CommandContext ctx;
+    ctx.work_dir = "./";
+    ctx.app_name = "./test.sh";
+    ctx.args.push_back("1");
+    ctx.args.push_back("2");
+    ctx.args.push_back("3");
+    ctx.timeout_ms = 15000;
+
+    runner->runCommand(ctx);
+
+
+    auto *pConfig = findWsjcppEmploy<IEmployConfig>();
 
     WsjcppLog::info("main", "Start web server on http://localhost:" + std::to_string(pConfig->getWebPort()));
     WebServer httpServer;
