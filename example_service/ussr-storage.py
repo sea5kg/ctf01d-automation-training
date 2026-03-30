@@ -30,7 +30,7 @@ Commands:
     EXIT              Exit
 """
 
-		ptrn = re.compile(r""".*(?P<name>\w*?).*""", re.VERBOSE)                           
+		ptrn = re.compile(r""".*(?P<name>\w*?).*""", re.VERBOSE)
 		self.sock.send(help_s)
 		while True:
 			if self.bKill == True:

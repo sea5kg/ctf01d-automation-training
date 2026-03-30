@@ -1,1 +1,0 @@
-# USSR Storage Service
