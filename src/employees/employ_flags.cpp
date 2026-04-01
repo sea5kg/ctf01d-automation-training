@@ -25,6 +25,7 @@
 
 #include "employ_flags.h"
 #include "iemploy_config.h"
+#include "iemploy_runner.h"
 #include <wsjcpp_core.h>
 #include <fstream>
 #include <cstring>
@@ -208,10 +209,9 @@ void EmployFlags::stopThreadSendFlags() {
 
 void EmployFlags::runThreadSendFlags() {
     auto *config = findWsjcppEmploy<IEmployConfig>();
+    auto *runner = findWsjcppEmploy<IEmployRunner>();
 
     while (!m_stop_thread) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
         Ctf01dFlag new_flag;
 
         new_flag.generateRandomFlag(config->flagLifeTimeInMin(), config->startTimeTrainingInSec());
@@ -219,6 +219,29 @@ void EmployFlags::runThreadSendFlags() {
         WsjcppLog::warn(TAG, "runThreadSendFlags - TODO: " + new_flag.getValue());
 
         // std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
-        // TODO run script
+
+        // fill context
+        CommandContext ctx;
+        ctx.work_dir = config->getCheckerWorkDir();
+        ctx.app_name = config->getCheckerScriptPath();
+        ctx.timeout_ms = config->getCheckerScriptWaitInSec() * 1000;
+        ctx.args.push_back("PUT");
+        ctx.args.push_back(config->getCheckerTargetHost());
+        ctx.args.push_back(new_flag.getId());
+        ctx.args.push_back(new_flag.getValue());
+
+        // run put flag
+        runner->runCommand(ctx);
+        // TODO process errors
+
+        // TODO if success putted
+        // run gte flag
+        ctx.args[0] = "GET";
+        runner->runCommand(ctx);
+
+        // TODO recalculate 
+        int timesleep_ms = config->getCheckerScriptTimeSleepBetweenRunInSec()*1000;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(timesleep_ms));
     }
 }

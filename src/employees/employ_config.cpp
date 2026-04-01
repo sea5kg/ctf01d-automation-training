@@ -174,6 +174,30 @@ int EmployConfig::flagLifeTimeInMin() {
   return m_flag_lifetime_in_min;
 }
 
+const std::string &EmployConfig::getCheckerType() {
+  return m_checker_type;
+}
+
+const std::string &EmployConfig::getCheckerTargetHost() {
+  return m_checker_target_host;
+}
+
+const std::string &EmployConfig::getCheckerWorkDir() {
+  return m_checker_work_dir;
+}
+
+const std::string &EmployConfig::getCheckerScriptPath() {
+  return m_checker_script_path;
+}
+
+int EmployConfig::getCheckerScriptWaitInSec() {
+  return m_checker_script_wait_in_sec;
+}
+
+int EmployConfig::getCheckerScriptTimeSleepBetweenRunInSec() {
+  return m_checker_script_time_sleep_between_run_in_sec;
+}
+
 void EmployConfig::doExtractFilesIfNotExists() {
   // TODO
   if (!WsjcppCore::dirExists(m_sWorkDir + "/logs")) {
@@ -370,6 +394,47 @@ bool EmployConfig::readFlagConfig(const std::string &configFilepath, WsjcppYaml 
   return true;
 }
 
+bool EmployConfig::readCheckerConfig(const std::string &configFilepath, WsjcppYaml &yamlConfig) {
+  if (yamlConfig["checker-type"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-type'. " + configFilepath);
+    return false;
+  }
+  m_checker_type = yamlConfig["checker-type"].valStr();
+  // TODO check it
+
+  if (yamlConfig["checker-workdir"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-workdir'. " + configFilepath);
+    return false;
+  }
+  m_checker_work_dir = yamlConfig["checker-workdir"].valStr();
+  // TODO check it
+
+  if (yamlConfig["checker-target-host"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-target-host'. " + configFilepath);
+    return false;
+  }
+  m_checker_target_host = yamlConfig["checker-target-host"].valStr();
+
+  if (yamlConfig["checker-script-path"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-path'. " + configFilepath);
+    return false;
+  }
+  m_checker_script_path = yamlConfig["checker-script-path"].valStr();
+
+  if (yamlConfig["checker-script-wait-in-sec"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-wait-in-sec'. " + configFilepath);
+    return false;
+  }
+  m_checker_script_wait_in_sec = yamlConfig["checker-script-path"].valInt();
+
+  if (yamlConfig["checker-script-time-sleep-between-run-in-sec"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-time-sleep-between-run-in-sec'. " + configFilepath);
+    return false;
+  }
+  m_checker_script_time_sleep_between_run_in_sec = yamlConfig["checker-script-time-sleep-between-run-in-sec"].valInt();
+  // TODO check it timesleep must be more or equal 3*waitscript
+  return true;
+}
 
 std::string EmployConfig::secondsToFormattedDateTime(int seconds) {
   std::chrono::seconds ch_seconds(seconds);

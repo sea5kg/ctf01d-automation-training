@@ -40,4 +40,12 @@ public:
   virtual int startTimeTrainingInSec() = 0;
   virtual int endTimeTrainingInSec() = 0;
   virtual int flagLifeTimeInMin() = 0;
+
+  virtual const std::string &getCheckerType() = 0;
+  virtual const std::string &getCheckerTargetHost() = 0;
+  virtual const std::string &getCheckerWorkDir() = 0;
+  virtual const std::string &getCheckerScriptPath() = 0;
+  virtual int getCheckerScriptWaitInSec() = 0;
+  virtual int getCheckerScriptTimeSleepBetweenRunInSec() = 0;
+
 };

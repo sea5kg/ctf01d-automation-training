@@ -48,6 +48,13 @@ public:
   virtual int endTimeTrainingInSec() override;
   virtual int flagLifeTimeInMin() override;
 
+  virtual const std::string &getCheckerType() override;
+  virtual const std::string &getCheckerTargetHost() override;
+  virtual const std::string &getCheckerWorkDir() override;
+  virtual const std::string &getCheckerScriptPath() override;
+  virtual int getCheckerScriptWaitInSec() override;
+  virtual int getCheckerScriptTimeSleepBetweenRunInSec() override;
+
   // TODO
   void doExtractFilesIfNotExists();
 
@@ -57,6 +64,7 @@ private:
   bool initLogging(WsjcppYaml &yamlConfig);
   bool readTimesTraining(const std::string &configFilepath, WsjcppYaml &yamlConfig);
   bool readFlagConfig(const std::string &configFilepath, WsjcppYaml &yamlConfig);
+  bool readCheckerConfig(const std::string &configFilepath, WsjcppYaml &yamlConfig);
   std::string secondsToFormattedDateTime(int seconds);
   int formattedDateTimeToSeconds(const std::string &dt);
   void createParamConfigDatetime(WsjcppYaml &yamlConfig, const std::string &name, int value_seconds, const std::string &comment);
@@ -70,4 +78,11 @@ private:
   int m_endTimeTraining;
   std::string m_sDatabaseDir;
   int m_flag_lifetime_in_min = 1;
+  std::string m_checker_type = "local-script";
+  std::string m_checker_target_host = "localhost";
+  std::string m_checker_work_dir = "./checker";
+  std::string m_checker_script_path = "./example_checker.py";
+  int m_checker_script_wait_in_sec = 5;
+  int m_checker_script_time_sleep_between_run_in_sec = 15;
+
 };
