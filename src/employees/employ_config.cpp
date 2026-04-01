@@ -194,8 +194,8 @@ int EmployConfig::getCheckerScriptWaitInSec() {
   return m_checker_script_wait_in_sec;
 }
 
-int EmployConfig::getCheckerScriptTimeSleepBetweenRunInSec() {
-  return m_checker_script_time_sleep_between_run_in_sec;
+int EmployConfig::getCheckerScriptRoundInSec() {
+  return m_checker_script_round_in_sec;
 }
 
 void EmployConfig::doExtractFilesIfNotExists() {
@@ -431,7 +431,7 @@ bool EmployConfig::readCheckerConfig(const std::string &configFilepath, WsjcppYa
     WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-time-sleep-between-run-in-sec'. " + configFilepath);
     return false;
   }
-  m_checker_script_time_sleep_between_run_in_sec = yamlConfig["checker-script-time-sleep-between-run-in-sec"].valInt();
+  m_checker_script_round_in_sec = yamlConfig["checker-script-round-in-sec"].valInt();
   // TODO check it timesleep must be more or equal 3*waitscript
   return true;
 }

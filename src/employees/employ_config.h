@@ -53,7 +53,7 @@ public:
   virtual const std::string &getCheckerWorkDir() override;
   virtual const std::string &getCheckerScriptPath() override;
   virtual int getCheckerScriptWaitInSec() override;
-  virtual int getCheckerScriptTimeSleepBetweenRunInSec() override;
+  virtual int getCheckerScriptRoundInSec() override;
 
   // TODO
   void doExtractFilesIfNotExists();
@@ -83,6 +83,6 @@ private:
   std::string m_checker_work_dir = "./checker";
   std::string m_checker_script_path = "./example_checker.py";
   int m_checker_script_wait_in_sec = 5;
-  int m_checker_script_time_sleep_between_run_in_sec = 15;
+  int m_checker_script_round_in_sec = 15;
 
 };

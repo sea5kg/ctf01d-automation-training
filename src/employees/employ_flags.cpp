@@ -212,6 +212,9 @@ void EmployFlags::runThreadSendFlags() {
     auto *runner = findWsjcppEmploy<IEmployRunner>();
 
     while (!m_stop_thread) {
+        std::chrono::time_point<std::chrono::system_clock> start, end;
+        start = std::chrono::system_clock::now();
+
         Ctf01dFlag new_flag;
 
         new_flag.generateRandomFlag(config->flagLifeTimeInMin(), config->startTimeTrainingInSec());
@@ -239,9 +242,12 @@ void EmployFlags::runThreadSendFlags() {
         ctx.args[0] = "GET";
         runner->runCommand(ctx);
 
-        // TODO recalculate 
-        int timesleep_ms = config->getCheckerScriptTimeSleepBetweenRunInSec()*1000;
+        // TODO recalculate
+        end = std::chrono::system_clock::now();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(timesleep_ms));
+        int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+        int ms_sleep = config->getCheckerScriptRoundInSec()*1000;
+        WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms_sleep - elapsed_milliseconds));
     }
 }

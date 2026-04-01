@@ -16,4 +16,4 @@ checker-workdir: ./checker
 checker-target-host: localhost
 checker-script-path: ./example_checker.py
 checker-script-wait-in-sec: 5 # max time for running script
-checker-script-time-sleep-between-run-in-sec: 15 # like a round for service
+checker-script-round-in-sec: 15 # round for service

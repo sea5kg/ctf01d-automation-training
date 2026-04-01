@@ -46,6 +46,6 @@ public:
   virtual const std::string &getCheckerWorkDir() = 0;
   virtual const std::string &getCheckerScriptPath() = 0;
   virtual int getCheckerScriptWaitInSec() = 0;
-  virtual int getCheckerScriptTimeSleepBetweenRunInSec() = 0;
+  virtual int getCheckerScriptRoundInSec() = 0;
 
 };
