@@ -77,10 +77,15 @@ class ClientProtocolCommandHelp:
     def __init__(self, _sock):
         self.__sock = _sock
         self.__command_name = "HELP"
+        self.__command_args = []
         self.__command_description = "This list of commands"
         self.__help_text = [
             "Example Service CTF01D Automation Training v1.0.0",
         ]
+
+    def command_args(self):
+        """ command_args """
+        return self.__command_args
 
     def command_name(self):
         """ command_name """
@@ -95,8 +100,6 @@ class ClientProtocolCommandHelp:
         self.__help_text.extend([
             "You connected from: " + self.__sock.get_address_info() + "",
             "Commands:",
-            "    PUT <id> <data>   Put item to storage (data: [A-Za-z0-9_\\-]{1,})",
-            "    GET <id>          Get item by id from storage",
         ])
         for cmd in commands:
             self.__help_text.append(
@@ -111,18 +114,23 @@ class ClientProtocolCommandHelp:
     def execute(self, _):
         """ execute command """
         self.__sock.write(self.__help_text)
-        return True
+        return CommandResultState.EXECUTED_SUCCESS
 
 class ClientProtocolCommandList:
     """ ClientProtocolCommandList """
     def __init__(self, _sock):
         self.__sock = _sock
         self.__command_name = "LIST"
+        self.__command_args = []
         self.__command_description = "List of items"
 
     def command_name(self):
         """ command_name """
         return self.__command_name
+
+    def command_args(self):
+        """ command_args """
+        return self.__command_args
 
     def command_description(self):
         """ command_name """
@@ -138,13 +146,68 @@ class ClientProtocolCommandList:
         self.__sock.write("  FOUND " + str(_items_counter) + " ITEM(S)\n")
         return CommandResultState.EXECUTED_SUCCESS
 
+
+class ClientProtocolCommandPut:
+    """ ClientProtocolCommandPut """
+    def __init__(self, _sock):
+        self.__sock = _sock
+        self.__command_name = "PUT"
+        # PUT <id> <data>   Put item to storage (data: [A-Za-z0-9_\\-]{1,})
+        self.__command_args = ["id", "data"]
+        self.__command_description = "Put item to storage (data: [A-Za-z0-9_\\-]{1,})e"
+
+    def command_name(self):
+        """ command_name """
+        return self.__command_name
+
+    def command_args(self):
+        """ command_args """
+        return self.__command_args
+
+    def command_description(self):
+        """ command_name """
+        return self.__command_description
+
+    def execute(self, _args):
+        """ execute """
+        if len(_args) > 3:
+            self.__sock.write("FAIL expected only one arg like a 'PUT <id> <flag_val>'\n")
+            return CommandResultState.EXECUTED_FAILED
+        _flag_id = ""
+        if len(_args) > 1:
+            _flag_id = _args[1].strip()
+        # TODO validate _flag_id
+        if _flag_id == "":
+            self.__sock.write("FAIL incorrect id\n")
+            return CommandResultState.EXECUTED_FAILED
+        _flag_data = ""
+        if len(_args) > 2:
+            _flag_data = _args[2].strip()
+        # if not os.path.exists('flags/' + _flag_id):
+        #     self.__sock.write("FAIL id not found\n")
+        #     return CommandResultState.EXECUTED_FAILED
+        if os.path.isdir('flags/' + _flag_id):
+            self.__sock.write("FAIL id not found (dir?)\n")
+            return CommandResultState.EXECUTED_FAILED
+        with open('flags/' + _flag_id, "wb") as _file:
+            _file.write(_flag_data.encode("utf-8"))
+            self.__sock.write("OK\n")
+            # self.__sock.write("DATA " + _file.readline().strip() + "\n")
+        return CommandResultState.EXECUTED_SUCCESS
+
+
 class ClientProtocolCommandGet:
     """ ClientProtocolCommandGet """
     def __init__(self, _sock):
         self.__sock = _sock
         self.__command_name = "GET"
         # GET <id>          Get item by id from storage
+        self.__command_args = ["id"]
         self.__command_description = "Get item by id from storage"
+
+    def command_args(self):
+        """ command_args """
+        return self.__command_args
 
     def command_name(self):
         """ command_name """
@@ -182,8 +245,13 @@ class ClientProtocolCommandDel:
     def __init__(self, _sock):
         self.__sock = _sock
         self.__command_name = "DEL"
+        self.__command_args = ["id"]
         # DEL <id>          Get item by id from storage
         self.__command_description = "hidden"
+
+    def command_args(self):
+        """ command_args """
+        return self.__command_args
 
     def command_name(self):
         """ command_name """
@@ -223,7 +291,12 @@ class ClientProtocolCommandExit:
         self.__sock = _sock
         self.__command_name = "EXIT"
         # GET <id>          Get item by id from storage
+        self.__command_args = []
         self.__command_description = "Exit"
+
+    def command_args(self):
+        """ command_args """
+        return self.__command_args
 
     def command_name(self):
         """ command_name """
@@ -251,6 +324,7 @@ class ClientProtocol(threading.Thread):
             self.__cmd_help,
             ClientProtocolCommandList(self.__sock),
             ClientProtocolCommandGet(self.__sock),
+            ClientProtocolCommandPut(self.__sock),
             ClientProtocolCommandExit(self.__sock),
         ]
         self.__cmd_help.init_help(self.__commands)
@@ -283,28 +357,14 @@ class ClientProtocol(threading.Thread):
                 self.__kill = True
                 break
             if _state == CommandResultState.EXECUTED_SUCCESS:
-                self.__sock.write("> \n")
+                # self.__sock.write("> \n")
                 continue
             if _state == CommandResultState.EXECUTED_FAILED:
-                self.__sock.write("> \n")
+                # self.__sock.write("> \n")
                 continue
 
-            pattern_put = re.compile("^[ ]*PUT[ ]*([A-Za-z0-9]{1,})[ ]*([A-Za-z0-9_\\-]{1,})[ ]*$")
-
-            if pattern_put.match(buf):
-                f_id = pattern_put.match(buf).group(1)
-                f_data = pattern_put.match(buf).group(2)
-                if f_id == "":
-                    self.__sock.write("FAIL incorrect id\n")
-                    continue
-                f = open('flags/' + f_id, 'w')
-                f.write(f_data)
-                f.close()
-                self.__sock.write("OK\n")
-                continue
-            else:
-                self.__sock.write("FAIL ["+ buf.strip() + "] Unknown command, look 'help'\n")
-                continue
+            self.__sock.write("FAIL ["+ cmd + "] Unknown command, look 'help'\n")
+            continue
 
         self.__kill = True
         self.__sock.close()
