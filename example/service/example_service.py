@@ -25,19 +25,22 @@
 # https://github.com/sea5kg/ctf01d-automation-training
 #
 
+"""
+    Example of service for ctf01d-automation-training
+"""
+
+
 import socket
 import threading
-import sys
-import math
 import re
 import os
-import errno
 from enum import Enum
 
 SERVICE_LISTEN_HOST = ""
 SERVICE_LISTEN_PORT = 4445
 THREADS_WITH_CLIENT = []
 RE_FLAG_ID = re.compile(r'^[A-Za-z0-9_-]{1,}$')
+
 
 class ClientSocket:
     """ Implementation under work with socket """
@@ -69,32 +72,49 @@ class CommandResultState(Enum):
     NOT_FOUND = 1
     EXECUTED_SUCCESS = 2
     EXECUTED_FAILED = 3
-    USER_EXIT = 3
+    USER_EXIT = 4
+
+
+class CommandInfo:
+    """ CommandInfo """
+    def __init__(self, _name, _args, _description):
+        self.__name = _name
+        self.__args = _args
+        self.__description = _description
+
+    def name(self):
+        """ name """
+        return self.__name
+
+    def args(self):
+        """ args """
+        return self.__args
+
+    def description(self):
+        """ description """
+        return self.__description
+
+    def get_help_text(self):
+        """ get_help_text """
+        ret = self.__name.upper()
+        if len(self.__args) > 0:
+            ret += " <" + "> <".join(self.__args) + ">"
+        return ret
 
 
 class ClientProtocolCommandHelp:
     """ ClientProtocolCommandHelp """
 
-    def __init__(self, _sock):
+    def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        self.__command_name = "HELP"
-        self.__command_args = []
-        self.__command_description = "This list of commands"
+        self.__cmd = CommandInfo("HELP", [], "This list of commands")
         self.__help_text = [
             "Example Service CTF01D Automation Training v1.0.0",
         ]
 
-    def command_args(self):
-        """ command_args """
-        return self.__command_args
-
-    def command_name(self):
-        """ command_name """
-        return self.__command_name
-
-    def command_description(self):
-        """ command_name """
-        return self.__command_description
+    def command(self):
+        """ command """
+        return self.__cmd
 
     def init_help(self, commands):
         """ init_help """
@@ -102,10 +122,22 @@ class ClientProtocolCommandHelp:
             "You connected from: " + self.__sock.get_address_info() + "",
             "Commands:",
         ])
+        _cmds = []
+        _max_len = 0
         for cmd in commands:
-            self.__help_text.append(
-                "    " + cmd.command_name() + "            " + cmd.command_description()
-            )
+            _cmd_text = "    " + cmd.command().get_help_text()
+            _cmds.append({
+                "cmd": _cmd_text,
+                "desc": cmd.command().description(),
+            })
+            _max_len = max(len(_cmd_text), _max_len)
+
+        _max_len += 3
+        for cmd in _cmds:
+            _text = cmd["cmd"].ljust(_max_len, ' ')
+            _text += cmd["desc"]
+            self.__help_text.append(_text)
+
         self.__help_text = "\n".join(self.__help_text) + "\n"
 
     def help_text(self):
@@ -117,25 +149,16 @@ class ClientProtocolCommandHelp:
         self.__sock.write(self.__help_text)
         return CommandResultState.EXECUTED_SUCCESS
 
+
 class ClientProtocolCommandList:
     """ ClientProtocolCommandList """
-    def __init__(self, _sock):
+    def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        self.__command_name = "LIST"
-        self.__command_args = []
-        self.__command_description = "List of items"
+        self.__cmd = CommandInfo("LIST", [], "List of items")
 
-    def command_name(self):
-        """ command_name """
-        return self.__command_name
-
-    def command_args(self):
-        """ command_args """
-        return self.__command_args
-
-    def command_description(self):
-        """ command_name """
-        return self.__command_description
+    def command(self):
+        """ command """
+        return self.__cmd
 
     def execute(self, _):
         """ execute """
@@ -150,24 +173,13 @@ class ClientProtocolCommandList:
 
 class ClientProtocolCommandPut:
     """ ClientProtocolCommandPut """
-    def __init__(self, _sock):
+    def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        self.__command_name = "PUT"
-        # PUT <id> <data>   Put item to storage (data: [A-Za-z0-9_\\-]{1,})
-        self.__command_args = ["id", "data"]
-        self.__command_description = "Put item to storage (data: [A-Za-z0-9_\\-]{1,})e"
+        self.__cmd = CommandInfo("PUT", ["id", "data"], "Put data to storage by id")
 
-    def command_name(self):
-        """ command_name """
-        return self.__command_name
-
-    def command_args(self):
-        """ command_args """
-        return self.__command_args
-
-    def command_description(self):
-        """ command_name """
-        return self.__command_description
+    def command(self):
+        """ command """
+        return self.__cmd
 
     def execute(self, _args):
         """ execute """
@@ -186,9 +198,6 @@ class ClientProtocolCommandPut:
         _flag_data = ""
         if len(_args) > 2:
             _flag_data = _args[2].strip()
-        # if not os.path.exists('flags/' + _flag_id):
-        #     self.__sock.write("FAIL id not found\n")
-        #     return CommandResultState.EXECUTED_FAILED
         if os.path.isdir('flags/' + _flag_id):
             self.__sock.write("FAIL id not found (dir?)\n")
             return CommandResultState.EXECUTED_FAILED
@@ -201,24 +210,13 @@ class ClientProtocolCommandPut:
 
 class ClientProtocolCommandGet:
     """ ClientProtocolCommandGet """
-    def __init__(self, _sock):
+    def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        self.__command_name = "GET"
-        # GET <id>          Get item by id from storage
-        self.__command_args = ["id"]
-        self.__command_description = "Get item by id from storage"
+        self.__cmd = CommandInfo("GET", ["id"], "Get data by id from storage")
 
-    def command_args(self):
-        """ command_args """
-        return self.__command_args
-
-    def command_name(self):
-        """ command_name """
-        return self.__command_name
-
-    def command_description(self):
-        """ command_name """
-        return self.__command_description
+    def command(self):
+        """ command """
+        return self.__cmd
 
     def execute(self, _args):
         """ execute """
@@ -247,24 +245,13 @@ class ClientProtocolCommandGet:
 
 class ClientProtocolCommandDel:
     """ ClientProtocolCommandDel """
-    def __init__(self, _sock):
+    def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        self.__command_name = "DEL"
-        self.__command_args = ["id"]
-        # DEL <id>          Get item by id from storage
-        self.__command_description = "hidden"
+        self.__cmd = CommandInfo("DEL", ["id"], "(hidden) Delete data by id from storage")
 
-    def command_args(self):
-        """ command_args """
-        return self.__command_args
-
-    def command_name(self):
-        """ command_name """
-        return self.__command_name
-
-    def command_description(self):
-        """ command_name """
-        return self.__command_description
+    def command(self):
+        """ command """
+        return self.__cmd
 
     def execute(self, _args):
         """ execute """
@@ -294,24 +281,13 @@ class ClientProtocolCommandDel:
 
 class ClientProtocolCommandExit:
     """ ClientProtocolCommandExit """
-    def __init__(self, _sock):
+    def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        self.__command_name = "EXIT"
-        # GET <id>          Get item by id from storage
-        self.__command_args = []
-        self.__command_description = "Exit"
+        self.__cmd = CommandInfo("EXIT", [], "Exit")
 
-    def command_args(self):
-        """ command_args """
-        return self.__command_args
-
-    def command_name(self):
-        """ command_name """
-        return self.__command_name
-
-    def command_description(self):
-        """ command_name """
-        return self.__command_description
+    def command(self):
+        """ command """
+        return self.__cmd
 
     def execute(self, _):
         """ execute """
@@ -324,7 +300,7 @@ class ClientProtocol(threading.Thread):
 
     def __init__(self, _sock: ClientSocket):
         self.__sock = _sock
-        print("Connected ", self.__sock.get_address_info())
+        print("Connected", self.__sock.get_address_info())
         self.__cmd_help = ClientProtocolCommandHelp(self.__sock)
         self.__cmd_del = ClientProtocolCommandDel(self.__sock)
         self.__commands = [
@@ -339,12 +315,11 @@ class ClientProtocol(threading.Thread):
         self.__kill = False
         threading.Thread.__init__(self)
 
-    def run (self):
+    def run(self):
         self.__sock.write(self.__cmd_help.help_text())
-        while True:
-            if self.__kill:
-                break
+        while not self.__kill:
             self.__sock.write("> ")
+            # self.__sock.flush()
             buf = self.__sock.read()
             if buf == "":
                 break
@@ -352,54 +327,59 @@ class ClientProtocol(threading.Thread):
             cmd = buf.upper()
             if " " in cmd:
                 cmd = cmd.split(" ")[0]
-            _args =  buf.split(" ")
+            _args = buf.split(" ")
             _state = CommandResultState.NOT_FOUND
             for _cmd_h in self.__commands:
-                if _cmd_h.command_name() == cmd:
-                    _state = _cmd_h.execute(_args)
+                if _cmd_h.command().name() == cmd:
+                    try:
+                        _state = _cmd_h.execute(_args)
+                    except Exception as err:  # pylint: disable=broad-exception-caught
+                        print(err)
                     break
-            if cmd == self.__cmd_del.command_name():
+            if cmd == self.__cmd_del.command().name():
                 _state = self.__cmd_del.execute(_args)
             if _state == CommandResultState.USER_EXIT:
                 self.__kill = True
                 break
             if _state == CommandResultState.EXECUTED_SUCCESS:
-                # self.__sock.write("> \n")
                 continue
             if _state == CommandResultState.EXECUTED_FAILED:
-                # self.__sock.write("> \n")
                 continue
 
-            self.__sock.write("FAIL ["+ cmd + "] Unknown command, look 'help'\n")
+            self.__sock.write("FAIL [" + cmd + "] Unknown command, look 'help'\n")
             continue
 
         self.__kill = True
         self.__sock.close()
+        print("Disconnected", self.__sock.get_address_info())
         THREADS_WITH_CLIENT.remove(self)
 
     def kill(self):
+        """ kill thread, close socket """
         if self.__kill:
             return
         self.__kill = True
         self.__sock.close()
         # THREADS_WITH_CLIENT.remove(self)
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((SERVICE_LISTEN_HOST, SERVICE_LISTEN_PORT))
-s.listen(10)
+
+server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server_sock.bind((SERVICE_LISTEN_HOST, SERVICE_LISTEN_PORT))
+server_sock.listen(10)
 print('Started server on ' + str(SERVICE_LISTEN_PORT) + ' port.')
 
 if not os.path.exists("flags"):
     os.makedirs("flags")
 try:
     while True:
-        sock, addr = s.accept()
-        thr = ClientProtocol(ClientSocket(sock, addr))
+        cli_sock, addr = server_sock.accept()
+        cli_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        thr = ClientProtocol(ClientSocket(cli_sock, addr))
         THREADS_WITH_CLIENT.append(thr)
         thr.start()
 except KeyboardInterrupt:
     print('Bye! Write me letters!')
-    s.close()
+    server_sock.close()
     for thr in THREADS_WITH_CLIENT:
         thr.kill()
