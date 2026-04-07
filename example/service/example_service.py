@@ -37,6 +37,7 @@ from enum import Enum
 SERVICE_LISTEN_HOST = ""
 SERVICE_LISTEN_PORT = 4445
 THREADS_WITH_CLIENT = []
+RE_FLAG_ID = re.compile(r'^[A-Za-z0-9_-]{1,}$')
 
 class ClientSocket:
     """ Implementation under work with socket """
@@ -176,9 +177,11 @@ class ClientProtocolCommandPut:
         _flag_id = ""
         if len(_args) > 1:
             _flag_id = _args[1].strip()
-        # TODO validate _flag_id
         if _flag_id == "":
             self.__sock.write("FAIL incorrect id\n")
+            return CommandResultState.EXECUTED_FAILED
+        if not re.match(RE_FLAG_ID, _flag_id):
+            self.__sock.write("FAIL incorrect flag id expected: " + str(RE_FLAG_ID) + "\n")
             return CommandResultState.EXECUTED_FAILED
         _flag_data = ""
         if len(_args) > 2:
@@ -220,7 +223,7 @@ class ClientProtocolCommandGet:
     def execute(self, _args):
         """ execute """
         if len(_args) > 2:
-            self.__sock.write("FAIL expected only one arg like a 'GET some'\n")
+            self.__sock.write("FAIL expected only one arg like a 'GET <id>'\n")
             return CommandResultState.EXECUTED_FAILED
         _flag_id = ""
         if len(_args) > 1:
@@ -228,7 +231,9 @@ class ClientProtocolCommandGet:
         if _flag_id == "":
             self.__sock.write("FAIL incorrect id\n")
             return CommandResultState.EXECUTED_FAILED
-        # TODO validate _flag_id
+        if not re.match(RE_FLAG_ID, _flag_id):
+            self.__sock.write("FAIL incorrect flag id expected: " + str(RE_FLAG_ID) + "\n")
+            return CommandResultState.EXECUTED_FAILED
         if not os.path.exists('flags/' + _flag_id):
             self.__sock.write("FAIL id not found\n")
             return CommandResultState.EXECUTED_FAILED
@@ -272,8 +277,10 @@ class ClientProtocolCommandDel:
         if _flag_id == "":
             self.__sock.write("FAIL incorrect id\n")
             return CommandResultState.EXECUTED_FAILED
+        if not re.match(RE_FLAG_ID, _flag_id):
+            self.__sock.write("FAIL incorrect flag id expected: " + str(RE_FLAG_ID) + "\n")
+            return CommandResultState.EXECUTED_FAILED
         _filepath = 'flags/' + _flag_id
-        # TODO validate _flag_id
         if not os.path.exists(_filepath):
             self.__sock.write("FAIL id not found\n")
             return CommandResultState.EXECUTED_FAILED
