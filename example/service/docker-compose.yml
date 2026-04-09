@@ -1,0 +1,11 @@
+services:
+  example-service:
+    image: python:3.11
+    volumes:
+      - "./flags:/usr/src/app/flags"
+      - "./example_service.py:/usr/src/app/example_service.py"
+    expose:
+      - 4445
+    ports:
+      - "4445:4445"
+    command: /bin/bash -c "cd /usr/src/app && python -u example_service.py"
