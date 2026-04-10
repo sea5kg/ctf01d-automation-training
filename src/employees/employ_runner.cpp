@@ -102,6 +102,7 @@ void* newProcessThread(void *arg) {
 
 void LocalCommandRunner::start(CommandContext &ctx) {
     // CommandContext &ctx
+    
     m_sDir = ctx.work_dir;
     m_sScript = ctx.app_name;
     m_args = ctx.args;
@@ -109,6 +110,8 @@ void LocalCommandRunner::start(CommandContext &ctx) {
     m_bFinishedByTimeout = false;
     int nTimeWait = 0;
     int nSleepMS = 100;
+    WsjcppLog::info(TAG, "m_sDir = : " + m_sDir);
+    WsjcppLog::info(TAG, "m_sScript = : " + m_sScript);
 
     pthread_create(&m_pProcessThread, NULL, &newProcessThread, (void *)this);
 
@@ -306,3 +309,4 @@ void EmployRunner::runCommand(CommandContext &ctx) {
 
     // TODO return result
 }
+

@@ -106,9 +106,9 @@ bool EmployConfig::init(const std::string &sName, bool bSilent) {
     return false;
   }
 
-  // if (!readCheckerConfig(sConfigFile, yamlConfig)) {
-  //   return false;
-  // }
+  if (!readCheckerConfig(sConfigFile, yamlConfig)) {
+    return false;
+  }
 
   m_sDatabaseDir = handleRelatedDirPath(yamlConfig["database-dir"].valStr(), "/dbs");
   if (!WsjcppCore::dirExists(m_sDatabaseDir)) {
@@ -406,7 +406,8 @@ bool EmployConfig::readCheckerConfig(const std::string &configFilepath, WsjcppYa
     WsjcppLog::err(TAG, "Missing parameter in config 'checker-workdir'. " + configFilepath);
     return false;
   }
-  m_checker_work_dir = yamlConfig["checker-workdir"].valStr();
+  //m_checker_work_dir = yamlConfig["checker-workdir"].valStr();
+  m_checker_work_dir = handleRelatedDirPath(yamlConfig["checker-workdir"].valStr(), "");
   // TODO check it
 
   if (yamlConfig["checker-target-host"].isNull()) {
@@ -425,10 +426,10 @@ bool EmployConfig::readCheckerConfig(const std::string &configFilepath, WsjcppYa
     WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-wait-in-sec'. " + configFilepath);
     return false;
   }
-  m_checker_script_wait_in_sec = yamlConfig["checker-script-path"].valInt();
+  m_checker_script_wait_in_sec = yamlConfig["checker-script-wait-in-sec"].valInt();
 
-  if (yamlConfig["checker-script-time-sleep-between-run-in-sec"].isNull()) {
-    WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-time-sleep-between-run-in-sec'. " + configFilepath);
+  if (yamlConfig["checker-script-round-in-sec"].isNull()) {
+    WsjcppLog::err(TAG, "Missing parameter in config 'checker-script-round-in-sec'. " + configFilepath);
     return false;
   }
   m_checker_script_round_in_sec = yamlConfig["checker-script-round-in-sec"].valInt();
