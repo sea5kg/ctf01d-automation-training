@@ -1,81 +1,127 @@
+@font-face { font-family: TheGuidingThread; src: url('../fonts/TheGuidingThread.ttf'); }
 
-body{
-	line-height: 20px;
+body {
+  background-color: #000;
+  font: 12pt/10pt Arial;
+  padding: 0px;
+  margin: 0px;
+  background-color: #202020;
+  color: #aaa;
+  line-height: 20px;
+  background-image: url(../images/background.svg);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: 0px 0px;
+}
+
+body, html {
+    height: 100%;
+    text-align: center;
 }
 
 h1 {
-	padding: 0px;
-	margin: 0px;
+  padding: 0px;
+  margin: 0px;
 }
-.header{
-	display: inline-block;
-	padding: 0px;
-	padding-bottom: 10px;
-	margin: 0px;
-	background-image: url(../images/backscreen3.png);
-	background-position: top center;
-	background-repeat: no-repeat;
-	width: 100%;
-	height: 150px;
-	/*line-height: 100px;*/
-	vertical-align: middle;
-	text-align: center;
+
+.ctf01d-automation-training-header {
+  background-size: 130px 130px;
+  display: inline-block;
+  padding: 0px;
+  padding-bottom: 10px;
+  margin: 0px;
+  background-image: url(../images/logo.png);
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  width: calc(100% - 350px);
+  margin-top: 100px;
+  margin-left: 100px;
+  height: 150px;
+  line-height: 45px;
+  vertical-align: middle;
+  text-align: left;
+  padding-left: 150px;
+  font-size: 45px;
+  font-weight: bold;
+  font-family: TheGuidingThread;
 }
 
 .content{
-	padding: 0px;
-	margin: 0px;
-	vertical-align: top;
-	border-style: solid;
-	border-width:0px;
-	border-color:red;
+  padding: 0px;
+  margin: 0px;
+  vertical-align: top;
+  border-style: solid;
+  border-width:0px;
+  border-color:red;
 }
 
 .content-block{
-	display: inline-block;
-	border-style: solid;
-	border-width:2px;
-	border-color:#e4e4e4;
-	width: 500px;
-	margin: 10px;
-	/*position: relative;*/
-	vertical-align: top;
-	text-align: left;
-	background-color: rgba(228,228,228,0.7);
+  display: inline-block;
+  border-style: solid;
+  border-width:2px;
+  border-color:#444;
+  width: 500px;
+  margin: 10px;
+  /*position: relative;*/
+  vertical-align: top;
+  text-align: left;
+  background-color: rgba(28,28,28,0.7)
 }
 
-.content-header{
-	background-color: #e4e4e4;
-	padding: 10px;
+.content-header {
+  background-color: rgba(58,58,58,0.7);
+  padding: 10px;
 }
 .content-text{
-	padding: 10px;
+  padding: 10px;
 }
 
 .rating{
-	padding: 2px;
+  padding: 2px;
 }
 
 .table{
-	display: table;
-	width: 100%;
-	padding: 0px;
+  display: table;
+  width: 100%;
+  padding: 0px;
 }
 
 .row{
-	display: table-row;
-	
+  display: table-row;
 }
 
 .cell{
-	display: table-cell;
-	padding: 3px;
-	text-align: center;
-	border-bottom: 1px solid #fff;
+  display: table-cell;
+  padding: 3px;
+  text-align: center;
+  border-bottom: 1px solid #444;
 }
 
 .row:hover{
-	background: #3e3e3e;
-	color: #e4e4e4;
-	cursor: pointer;
+  background: #3e3e3e;
+  color: #e4e4e4;
+  cursor: pointer;
+}
+
+a {
+  color: #ccc;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+/* Hover state: Red underline */
+a:hover {
+  text-decoration: underline;
+  color: #ed490a;
+}
+
+input {
+  color: #ff0000;           /* Red text color */
+  background-color: #eee;   /* Light gray background */
+  caret-color: blue;        /* Color of the blinking cursor */
+}
+
+input::placeholder {
+  color: gray;              /* Color of the placeholder text */
 }
