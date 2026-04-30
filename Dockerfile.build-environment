@@ -1,0 +1,15 @@
+FROM debian:12
+WORKDIR /root/
+
+LABEL "maintainer"="Evgenii Sopov <mrseakg@gmail.com>"
+LABEL "repository"="https://github.com/sea5kg/ctf01d-automation-training"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+	make \
+    cmake \
+    gcc \
+    g++ \
+    curl \
+    pkg-config \
+    && apt-get clean
