@@ -26,12 +26,31 @@
 #pragma once
 
 #include <string>
-#include "ctf01d_flag.h"
 
-class IEmployFlags {
+class Ctf01dFlag {
 public:
-  static std::string name() { return "IEmployFlags"; }
-  virtual bool findFlagLive(const std::string &flagValue, Ctf01dFlag &flag) = 0;
-  virtual void startThreadSendFlags() = 0;
-  virtual void stopThreadSendFlags() = 0;
+  Ctf01dFlag();
+  void generateRandomFlag(int nTimeFlagLifeInMin, int nGameStartUTCInSec);
+
+  void generateId();
+  void setId(const std::string &sId);
+  std::string getId() const;
+
+  void generateValue(int nGameStartUTCInSec);
+  void setValue(const std::string &sValue);
+  std::string getValue() const;
+
+  void setTimeStartInMs(long nTimeStart);
+  long getTimeStartInMs() const;
+
+  void setTimeEndInMs(long nTimeEnd);
+  long getTimeEndInMs() const;
+
+  void copyFrom(const Ctf01dFlag &flag);
+
+private:
+  std::string m_sId;
+  std::string m_sValue;
+  long m_nTimeStartInMs;
+  long m_nTimeEndInMs;
 };

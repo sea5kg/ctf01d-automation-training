@@ -21,17 +21,23 @@
 * SOFTWARE.
 */
 
-// https://github.com/sea5kg/ctf01d-automation-training
-
 #pragma once
 
-#include <string>
+#include "database_file.h"
+#include "db_structs.h"
 #include "ctf01d_flag.h"
+#include <map>
 
-class IEmployFlags {
+class DbFlags : public DatabaseFile {
 public:
-  static std::string name() { return "IEmployFlags"; }
-  virtual bool findFlagLive(const std::string &flagValue, Ctf01dFlag &flag) = 0;
-  virtual void startThreadSendFlags() = 0;
-  virtual void stopThreadSendFlags() = 0;
+  DbFlags();
+  ~DbFlags();
+
+  std::map<std::string, Ctf01dFlag> getFlagsNotExpired();
+  void insertFlag(const Ctf01dFlag &flag);
+
+private:
+
+  std::mutex m_mutex;
+  std::string TAG;
 };

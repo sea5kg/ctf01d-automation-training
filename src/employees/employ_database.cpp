@@ -45,6 +45,9 @@ bool EmployDatabase::init(const std::string &sName, bool bSilent) {
   }
   // TODO via list pointers or something like
   WsjcppLog::ok(TAG, "Initialize build-in sqlite3 library");
+  if (!this->initDbFlags()) {
+    return false;
+  }
   if (!this->initDbUuids()) {
     return false;
   }
@@ -61,11 +64,22 @@ bool EmployDatabase::deinit(const std::string &sName, bool bSilent) {
   return true;
 }
 
+std::shared_ptr<DbFlags> EmployDatabase::dbFlags() { return m_dbFlags; }
+
 std::shared_ptr<DbUuids> EmployDatabase::dbUuids() { return m_dbUuids; }
 
 std::shared_ptr<DbUsers> EmployDatabase::dbUsers() { return m_dbUsers; }
 
 std::shared_ptr<DbUserTries> EmployDatabase::dbUserTries() { return m_dbUsersTries; }
+
+bool EmployDatabase::initDbFlags() {
+  m_dbFlags = std::make_shared<DbFlags>();
+  if (!m_dbFlags->open()) {
+    return false;
+  }
+  WsjcppLog::ok(TAG, "Initialized " + m_dbFlags->getFileFullpath());
+  return true;
+}
 
 bool EmployDatabase::initDbUuids() {
   m_dbUuids = std::make_shared<DbUuids>();

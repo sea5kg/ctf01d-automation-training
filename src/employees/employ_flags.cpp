@@ -24,146 +24,14 @@
 // https://github.com/sea5kg/ctf01d-automation-training
 
 #include "employ_flags.h"
+#include "employ_database.h"
 #include "iemploy_config.h"
 #include "iemploy_runner.h"
 #include <wsjcpp_core.h>
 #include <fstream>
 #include <cstring>
 #include <thread>
-
-// ---------------------------------------------------------------------
-// Ctf01dFlag
-Ctf01dFlag::Ctf01dFlag() {
-    // flag id
-    m_sId = "qweRT12345";
-    // flag format
-    m_sValue = "c01d0000-0000-0000-0000-000000000000";
-    m_nTimeStartInMs = 0;
-    m_nTimeEndInMs = 0;
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::generateRandomFlag(int nTimeFlagLifeInMin, int nGameStartUTCInSec) {
-    // __int64
-    long nTimeStartInMs = WsjcppCore::getCurrentTimeInMilliseconds();
-    long nTimeEndInMs = nTimeStartInMs + nTimeFlagLifeInMin*60*1000;
-    setTimeStartInMs(nTimeStartInMs);
-    setTimeEndInMs(nTimeEndInMs);
-
-    generateId();
-    generateValue(nGameStartUTCInSec);
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::generateId() {
-    static const std::string sAlphabet =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz";
-
-    std::string sFlagId = "";
-    int nLenId = m_sId.size();
-    for (int i = 0; i < 10; ++i) {
-        m_sId[i] = sAlphabet[rand() % sAlphabet.length()];
-    }
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::setId(const std::string &sId) {
-    m_sId = sId;
-}
-
-// ---------------------------------------------------------------------
-
-std::string Ctf01dFlag::getId() const {
-    return m_sId;
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::generateValue(int nGameStartUTCInSec) {
-    // TODO redesign more freeble format
-    static const std::string sAlphabet = "0123456789abcdef";
-    char sUuid[37];
-    memset(&sUuid, '\0', 37);
-    sUuid[8] = '-';
-    sUuid[13] = '-';
-    sUuid[18] = '-';
-    sUuid[23] = '-';
-
-    for(int i = 4; i < 28; i++){
-        if (i != 8 && i != 13 && i != 18 && i != 23) {
-            m_sValue[i] = sAlphabet[rand() % sAlphabet.length()];
-        }
-    }
-
-    // set timepoint
-    int dt = m_nTimeStartInMs / 1000 - nGameStartUTCInSec;
-    std::string sTimePoint = std::to_string(dt);
-    int nTimePointLen = sTimePoint.size();
-    if (nTimePointLen > 8) {
-        WsjcppLog::throw_err("Ctf01dFlag::generateValue", "Really game was started more then 3 years ago ??? got value: " + sTimePoint);
-    }
-    int nPos = m_sValue.size() - 1;
-    for (int i = nTimePointLen - 1; i >= 0; i--) {
-        m_sValue[nPos] = sTimePoint[i];
-        nPos--;
-    }
-    // 03268167
-
-    // std::cout << "sTimePoint: " << sTimePoint << "\n";
-    // this->setValue(std::string(sUuid) + sTimePoint);
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::setValue(const std::string &sValue) {
-    // TODO validate format
-    // c01d...00000000 - prefix and time
-    m_sValue = sValue;
-}
-
-// ---------------------------------------------------------------------
-
-std::string Ctf01dFlag::getValue() const {
-    return m_sValue;
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::setTimeStartInMs(long nTimeStartInMs) {
-    m_nTimeStartInMs = nTimeStartInMs;
-}
-
-// ---------------------------------------------------------------------
-
-long Ctf01dFlag::getTimeStartInMs() const {
-    return m_nTimeStartInMs;
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::setTimeEndInMs(long nTimeEndInMs) {
-    m_nTimeEndInMs = nTimeEndInMs;
-}
-
-// ---------------------------------------------------------------------
-
-long Ctf01dFlag::getTimeEndInMs() const {
-    return m_nTimeEndInMs;
-}
-
-// ---------------------------------------------------------------------
-
-void Ctf01dFlag::copyFrom(const Ctf01dFlag &flag) {
-    this->setId(flag.getId());
-    this->setValue(flag.getValue());
-    this->setTimeStartInMs(flag.getTimeStartInMs());
-    this->setTimeEndInMs(flag.getTimeEndInMs());
-}
+#include <algorithm>
 
 // ---------------------------------------------------------------------
 // EmployFlags
@@ -171,14 +39,21 @@ void Ctf01dFlag::copyFrom(const Ctf01dFlag &flag) {
 REGISTRY_WSJCPP_EMPLOY(EmployFlags)
 
 EmployFlags::EmployFlags()
-: WsjcppEmployBase({IEmployFlags::name()}, { IEmployConfig::name() }) {
+: WsjcppEmployBase({IEmployFlags::name()}, { IEmployConfig::name(), EmployDatabase::name() }) {
     TAG = EmployFlags::name();
     m_stop_thread = false;
 }
 
 bool EmployFlags::init(const std::string &sName, bool bSilent) {
-    WsjcppLog::info(TAG, "init");
-    return true;
+  WsjcppLog::info(TAG, "init");
+
+  // caching previously flag lives
+  {
+    std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
+    auto *dbs = findWsjcppEmploy<EmployDatabase>();
+    m_flag_lives = dbs->dbFlags()->getFlagsNotExpired();
+  }
+  return true;
 }
 
 bool EmployFlags::deinit(const std::string &sName, bool bSilent) {
@@ -187,6 +62,11 @@ bool EmployFlags::deinit(const std::string &sName, bool bSilent) {
 }
 
 bool EmployFlags::findFlagLive(const std::string &flagValue, Ctf01dFlag &flag) {
+    std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
+    if (m_flag_lives.count(flagValue) > 0) {
+        flag.copyFrom(m_flag_lives[flagValue]);
+        return true;
+    }
     return false;
 }
 
@@ -238,9 +118,12 @@ void EmployFlags::runThreadSendFlags() {
         // TODO process errors
 
         // TODO if success putted
-        // run gte flag
+        // run get flag
         ctx.args[0] = "GET";
         runner->runCommand(ctx);
+
+        // TODO
+        // flags->addLiveFlag();
 
         // TODO recalculate
         end = std::chrono::system_clock::now();

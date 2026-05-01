@@ -60,6 +60,7 @@ class EmployFlags : public WsjcppEmployBase, public IEmployFlags {
         pthread_t m_pProcessThread;
         std::atomic_bool m_stop_thread = false;
         std::mutex m_mutex_flag_lives;
+        std::map<std::string, Ctf01dFlag> m_flag_lives;
 };
 
 #endif // EMPLOY_FLAGS_H

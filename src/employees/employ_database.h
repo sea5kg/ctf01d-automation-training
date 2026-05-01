@@ -28,6 +28,7 @@
 #include <wsjcpp_core.h>
 #include <wsjcpp_employees.h>
 #include <mutex>
+#include "db_flags.h"
 #include "db_uuids.h"
 #include "db_users.h"
 #include "db_user_tries.h"
@@ -39,6 +40,7 @@ public:
   virtual bool init(const std::string &sName, bool bSilent) override;
   virtual bool deinit(const std::string &sName, bool bSilent) override;
 
+  std::shared_ptr<DbFlags> dbFlags();
   std::shared_ptr<DbUuids> dbUuids();
   std::shared_ptr<DbUsers> dbUsers();
   std::shared_ptr<DbUserTries> dbUserTries();
@@ -46,10 +48,12 @@ public:
 private:
   std::string TAG;
 
+  bool initDbFlags();
   bool initDbUuids();
   bool initDbUsers();
   bool initDbUserTries();
 
+  std::shared_ptr<DbFlags> m_dbFlags;
   std::shared_ptr<DbUuids> m_dbUuids;
   std::shared_ptr<DbUsers> m_dbUsers;
   std::shared_ptr<DbUserTries> m_dbUsersTries;

@@ -25,6 +25,7 @@ list (APPEND WSJCPP_SOURCES "./src/handlers/request_handler.cpp")
 
 # database
 list (APPEND WSJCPP_SOURCES "./src/database/database_file.cpp")
+list (APPEND WSJCPP_SOURCES "./src/database/db_flags.cpp")
 list (APPEND WSJCPP_SOURCES "./src/database/db_uuids.cpp")
 list (APPEND WSJCPP_SOURCES "./src/database/db_users.cpp")
 list (APPEND WSJCPP_SOURCES "./src/database/db_user_tries.cpp")
@@ -41,15 +42,8 @@ list (APPEND WSJCPP_SOURCES "./src/employees/employ_users.cpp")
 list (APPEND WSJCPP_SOURCES "src/web_server.cpp")
 
 # main
+list (APPEND WSJCPP_SOURCES "src/ctf01d_flag.cpp")
 list (APPEND WSJCPP_SOURCES "src/main.cpp")
-
-# ZLIB
-# find_package( ZLIB REQUIRED )
-# if ( ZLIB_FOUND )
-#     list (APPEND WSJCPP_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
-#     include_directories( ${ZLIB_INCLUDE_DIRS} )
-#     list (APPEND WSJCPP_LIBRARIES ${ZLIB_LIBRARIES})
-# endif( ZLIB_FOUND )
 
 # libhv
 set(WITH_OPENSSL OFF CACHE BOOL "")
