@@ -98,6 +98,14 @@ int WebServer::httpGetRequests(HttpRequest* req, HttpResponse* resp) {
     sRequestPath = "/index.html";
   }
 
+  if (sRequestPath == "/admin") {
+    return resp->Redirect("/admin/");
+  }
+
+  if (sRequestPath == "/admin/") {
+    sRequestPath = "/admin/index.html";
+  }
+
   // TODO
   WsjcppLog::info(TAG, "Request path: " + sRequestPath);
   std::string sFilePath = sRequestPath = WsjcppCore::doNormalizePath(m_sHtmlFolder + "/" + sRequestPath);
