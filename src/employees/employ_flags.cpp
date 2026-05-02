@@ -101,10 +101,6 @@ void EmployFlags::runThreadSendFlags() {
 
         new_flag.generateRandomFlag(config->flagLifeTimeInMin(), config->startTimeTrainingInSec());
 
-        WsjcppLog::warn(TAG, "runThreadSendFlags - TODO: " + new_flag.getValue());
-
-        // std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
-
         // fill context
         CommandContext ctx;
         ctx.work_dir = config->getCheckerWorkDir();
@@ -117,12 +113,12 @@ void EmployFlags::runThreadSendFlags() {
 
         // run put flag
         runner->runCommand(ctx);
-        // TODO process errors
+        WsjcppLog::warn(TAG, "runThreadSendFlags - TODO process errors on PUT " + new_flag.getValue());
 
-        // TODO if success putted
         // run get flag
         ctx.args[0] = "GET";
         runner->runCommand(ctx);
+        WsjcppLog::warn(TAG, "runThreadSendFlags - TODO process errors on GET " + new_flag.getValue());
 
         // caching previously flag lives
         {

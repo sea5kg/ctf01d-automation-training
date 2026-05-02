@@ -102,7 +102,7 @@ void* newProcessThread(void *arg) {
 
 void LocalCommandRunner::start(CommandContext &ctx) {
     // CommandContext &ctx
-    
+
     m_sDir = ctx.work_dir;
     m_sScript = ctx.app_name;
     m_args = ctx.args;

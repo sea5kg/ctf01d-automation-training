@@ -222,6 +222,41 @@ bool DbUsers::updateUserRatings(const std::string &name, const UserRatings &rati
   return this->executeQuery(builder.sql());
 }
 
+bool DbUsers::incrementUserAttack(const std::string &name) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  // TODO
+  // UPDATE users SET tries = tries + 1 WHERE name = '115';
+
+  int attack = 0;
+  int score = 0;
+  {
+    wsjcpp::SqlBuilder builder;
+    builder.selectFrom("users")
+      .colum("attack")
+      .colum("score")
+      .where().equal("name", name)
+    ;
+    DatabaseSelectRows cur;
+    if (!this->selectRows(builder.sql(), cur)) {
+      WsjcppLog::err(TAG, "Problem with database");
+      return false;
+    }
+    if (cur.next()) {
+      attack = cur.getLong(0);
+      score = cur.getLong(1);
+    }
+  }
+
+  // TODO: tries = tries + 1 (after update sqlbuilder)
+  wsjcpp::SqlBuilder builder;
+  builder.update("users")
+    .set("attack", attack+1)
+    .set("score", score+1)
+    .set("dt_updated", WsjcppCore::getCurrentTimeInMilliseconds())
+    .where().equal("name", name)
+  ;
+  return this->executeQuery(builder.sql());
+}
 
 std::string DbUsers::unsafe_findUserBySecretToken(const std::string &secret_token) {
   wsjcpp::SqlBuilder builder;
@@ -239,4 +274,3 @@ std::string DbUsers::unsafe_findUserBySecretToken(const std::string &secret_toke
   }
   return "";
 }
-

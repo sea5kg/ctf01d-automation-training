@@ -44,6 +44,7 @@ public:
   std::string findUserByToken(const std::string &secret_token);
   void updateUserTries(const std::string &name);
   void updateUserPenaltyAndTries(const std::string &name);
+  void incrementUserAttack(const std::string &name);
 
 private:
   void sortRatingTable();

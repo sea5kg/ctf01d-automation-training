@@ -318,37 +318,7 @@ int WebServer::flag(std::shared_ptr<ctf01d::HandleContext> context) {
     return context->error400(ERR_10041_FLAG_TOO_OLD.replace("$flag$", flagValue));
   }
 
-  // std::string sServiceStatus = m_config->scoreboard()->serviceStatus(sTeamId, flag.getServiceId());
-
-  // // std::cout << "sServiceStatus: " << sServiceStatus << "\n";
-
-  // if (sServiceStatus != ServiceStatusCell::SERVICE_UP) {
-  //   static const std::string sErrorMsg = "Error(-190): Your same service is dead. Try later.";
-  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 403;
-  // }
-
-  // if (m_pEmployDatabase->isAlreadyStole(flag, sTeamId)) {
-  //   static const std::string sErrorMsg = "Error(-170): flag already stoled by your";
-  //   WsjcppLog::err(TAG, sErrorMsg + ". Recieved flag {" + sFlag + "} from {" + sTeamId + "}" + sRequestIP_MsgSuffex);
-  //   resp->String(sErrorMsg);
-  //   return 403;
-  // }
-
-  // // TODO light update scoreboard
-  // int nPoints = m_config->scoreboard()->incrementAttackScore(flag, sTeamId);
-  // std::string sPoints = std::to_string(double(nPoints) / 10.0);
-
-  // std::string sResponse = "Accepted: Recieved flag {" + sFlag + "} from {" + sTeamId + "} (Accepted + " + sPoints + ")";
-  // WsjcppLog::ok(TAG, sResponse + sRequestIP_MsgSuffex);
-  // resp->Data(
-  //   (void *)(sResponse.c_str()),
-  //   sResponse.size(),
-  //   false // copy buffer
-  // );
-  // resp->content_type = TEXT_PLAIN;
-  // return 200;
+  m_users->incrementUserAttack(username);
 
   nlohmann::json result;
   result["username"] = username;

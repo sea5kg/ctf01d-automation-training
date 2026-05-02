@@ -141,7 +141,6 @@ std::string EmployUsers::findUserByToken(const std::string &secret_token) {
 
 void EmployUsers::updateUserTries(const std::string &name) {
   auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
-
   dbUsers->updateUserTries(name);
 
   std::lock_guard<std::mutex> lock(m_mutexRating);
@@ -153,7 +152,24 @@ void EmployUsers::updateUserTries(const std::string &name) {
       break;
     }
   }
+}
 
+void EmployUsers::incrementUserAttack(const std::string &name) {
+  auto dbUsers = findWsjcppEmploy<EmployDatabase>()->dbUsers();
+  if (dbUsers->incrementUserAttack(name)) {
+    std::lock_guard<std::mutex> lock(m_mutexRating);
+    for (int i = 0; i < m_rating.size(); i++) {
+      if (m_rating[i]["name"] == name) {
+        int tries = m_rating[i]["attack"];
+        int score = m_rating[i]["score"];
+        m_rating[i]["attack"] = tries + 1;
+        m_rating[i]["score"] = score + 1;
+        m_rating[i]["updated"] = WsjcppCore::getCurrentTimeInMilliseconds();
+        break;
+      }
+    }
+    // TODO generate events
+  }
 }
 
 void EmployUsers::updateUserPenaltyAndTries(const std::string &name) {
