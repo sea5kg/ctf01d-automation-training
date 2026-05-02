@@ -52,6 +52,8 @@ bool EmployFlags::init(const std::string &sName, bool bSilent) {
     std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
     auto *dbs = findWsjcppEmploy<EmployDatabase>();
     m_flag_lives = dbs->dbFlags()->getFlagsNotExpired();
+
+    WsjcppLog::info(TAG, "Flags Live Size (On start): " + std::to_string(m_flag_lives.size()));
   }
   return true;
 }
@@ -122,12 +124,33 @@ void EmployFlags::runThreadSendFlags() {
         ctx.args[0] = "GET";
         runner->runCommand(ctx);
 
-        // TODO
-        // flags->addLiveFlag();
+        // caching previously flag lives
+        {
+          std::lock_guard<std::mutex> lock(m_mutex_flag_lives);
+          auto *dbs = findWsjcppEmploy<EmployDatabase>();
+          if (!dbs->dbFlags()->insertFlag(new_flag)) {
+            WsjcppLog::err(TAG, "Some problems with insert flag to database [" + new_flag.getId() + ":" + new_flag.getValue() + "]");
+          } else {
+            m_flag_lives[new_flag.getValue()] = new_flag;
+          }
 
-        // TODO recalculate
+          // cleanup outdated flags
+          long currentTime = WsjcppCore::getCurrentTimeInMilliseconds();
+          auto it = m_flag_lives.begin();
+          while (it != m_flag_lives.end()) {
+            Ctf01dFlag fl = it->second;
+            if (fl.getTimeEndInMs() < currentTime) {
+              // WsjcppLog::info(TAG, "Erase flag: fl.getTimeEndInMs() < currentTime [" + std::to_string(fl.getTimeEndInMs()) + " < " + std::to_string(currentTime) + "]");
+              it = m_flag_lives.erase(it);
+            } else {
+              ++it;
+            }
+          }
+        }
+        WsjcppLog::info(TAG, "Flags Live Size: " + std::to_string(m_flag_lives.size()));
+
+        // sleep
         end = std::chrono::system_clock::now();
-
         int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
         int ms_sleep = config->getCheckerScriptRoundInSec()*1000;
         WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");

@@ -92,7 +92,7 @@ std::map<std::string, Ctf01dFlag> DbFlags::getFlagsNotExpired() {
     .colum("flag_value")
     .colum("start_ms")
     .colum("end_ms")
-    .where().lessThen("end_ms", currentTime)
+    .where().moreThen("end_ms", currentTime)
   ;
   DatabaseSelectRows cur;
   if (!this->selectRows(builder.sql(), cur)) {
@@ -110,7 +110,19 @@ std::map<std::string, Ctf01dFlag> DbFlags::getFlagsNotExpired() {
   return ret;
 }
 
-void DbFlags::insertFlag(const Ctf01dFlag &flag) {
-  // TODO
+bool DbFlags::insertFlag(const Ctf01dFlag &flag) {
   std::lock_guard<std::mutex> lock(m_mutex);
+  wsjcpp::SqlBuilder builder;
+  builder.insertInto("flags")
+    .colum("flag_id")
+    .val(flag.getId())
+    .colum("flag_value")
+    .val(flag.getValue())
+    .colum("start_ms")
+    .val(flag.getTimeStartInMs())
+    .colum("end_ms")
+    .val(flag.getTimeEndInMs())
+  ;
+  // WsjcppLog::info(TAG, builder.sql());
+  return this->executeQuery(builder.sql());
 }

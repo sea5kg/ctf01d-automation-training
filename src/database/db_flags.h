@@ -34,7 +34,7 @@ public:
   ~DbFlags();
 
   std::map<std::string, Ctf01dFlag> getFlagsNotExpired();
-  void insertFlag(const Ctf01dFlag &flag);
+  bool insertFlag(const Ctf01dFlag &flag);
 
 private:
 
